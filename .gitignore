@@ -1,0 +1,8 @@
+# ignore node_modules everywhere
+**/node_modules/
+# build outputs
+**/build/
+# env files
+*.env
+# macOS
+.DS_Store
