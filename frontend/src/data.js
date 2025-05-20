@@ -62,5 +62,36 @@ export default [
         img: image,
         title: "Hunger Games",
         author: "Suzane Collins"
+    },
+    {
+        id: 11,
+        img: image,
+        title: "Hunger Games",
+        author: "Suzane Collins"
+    },
+    {
+        id: 12,
+        img: image,
+        title: "Hunger Games",
+        author: "Suzane Collins"
+    },
+    {
+        id: 13,
+        img: image,
+        title: "Hunger Games",
+        author: "Suzane Collins"
+    },
+    {
+        id: 14,
+        img: image,
+        title: "Hunger Games",
+        author: "Suzane Collins"
+    },
+    {
+        id: 15,
+        img: image,
+        title: "Hunger Games",
+        author: "Suzane Collins"
     }
+    
 ]
