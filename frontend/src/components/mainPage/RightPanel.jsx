@@ -1,5 +1,5 @@
-import BookBanner from "./BookBanner";
-import BookSectionMainComp from "./BookMainComp";
+import BookBanner from "./books/BookBanner";
+import BookSectionMainComp from "./books/BookMainComp";
 
 export default function RightPanel() {
   return (

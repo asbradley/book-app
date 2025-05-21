@@ -1,17 +1,4 @@
-import image from "../../assets/Girl_Reading.png";
-
-/*
-export default function BookBanner() {
-  return (
-    <div className="mb-6 w-full">
-      <img
-        src={image}
-        alt="Banner"
-          className="w-full h-full object-cover opacity-70"
-      />
-    </div>
-  );
-} */
+import image from "../../../assets/Girl_Reading.png";
 
 
   export default function BookBanner() {

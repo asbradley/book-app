@@ -1,7 +1,7 @@
-import BookSection from "./books/BookSection";
+import BookSection from "./BookSection";
 import axios from 'axios'
 import { useState, useEffect } from "react";
-import BookDetail from "./books/BookDetailed";
+import BookDetail from "./BookDetailed";
 
 
 export default function BookSectionMainComp() {
