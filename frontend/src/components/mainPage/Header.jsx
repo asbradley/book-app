@@ -12,6 +12,7 @@ export default function BookshelfNavbar() {
   return (
     <div className="w-full bg-white px-6 py-4 flex items-center justify-between border-b border-gray-200">
       {/* Left Side - Bookshelf Title */}
+      {/* Will route user to MainPage when 'BookShelf is clicked */}
       <Link to="/" className="flex items-center hover:underline cursor-pointer">
         <BookOpen className="h-5 w-5 text-gray-800 mr-2" />
         <h1 className="text-lg font-semibold">Bookshelf</h1>

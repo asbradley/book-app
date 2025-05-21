@@ -1,5 +1,5 @@
 import BookshelfNavbar from "./Header";
-import BookshelfSidebar from "./SideBar";
+import BookshelfSidebar from "./sideBar/SideBar";
 import RightPanel from "./RightPanel";
 
 export default function MainPage() {
