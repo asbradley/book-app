@@ -27,7 +27,7 @@ export default function BookSectionMainComp() {
         setLoading(true);
         
         // Make a GET request to backend to fetch
-        const response = await axios.get('http://localhost:7500/api/books')
+        const response = await axios.get('api/books')
 
         // Group the books by their genre
         const grouped = response.data.reduce((acc, book) => {
