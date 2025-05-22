@@ -15,8 +15,10 @@ export default function Filtered({ genre }) {
       try {
         setLoading(true);
 
-        const response = await axios.get(`api/genre/${encodeURIComponent(genre)}`);
-        
+        const response = await axios.get(
+          `api/genre/${encodeURIComponent(genre)}`
+        );
+
         setBooks(response.data);
         setLoading(false);
       } catch (error) {
@@ -29,24 +31,29 @@ export default function Filtered({ genre }) {
     fetchBooks();
   }, [genre]);
 
-  if (loading) return <div>Loading books...</div>
+  if (loading) return <div>Loading books...</div>;
 
-  if (error) return <div>Error: {error}</div>
+  if (error) return <div>Error: {error}</div>;
 
-  if (!books.length) return <div>No Books in {genre} genre.</div>
+  if (!books.length) return <div>No Books in {genre} genre.</div>;
 
   return (
     <section className="mb-10 w-full">
       <h2 className="text-xl font-bold text-gray-800 mb-4">{genre} Books</h2>
-
-      <div className="flex flex-wrap gap-5">
+      <div
+        className="grid grid-cols-auto-fit gap-5"
+        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(112px, 1fr))" }}
+      >
         {books.map((book) => (
-          <div key={book.id} className="w-28 cursor-pointer" onClick={() => setSelectedBook(book)}>
+          <div
+            key={book.id}
+            className="cursor-pointer"
+            onClick={() => setSelectedBook(book)}
+          >
             <BookCard {...book} />
           </div>
         ))}
       </div>
-
       {selectedBook && (
         <BookDetail book={selectedBook} onClose={() => setSelectedBook(null)} />
       )}
