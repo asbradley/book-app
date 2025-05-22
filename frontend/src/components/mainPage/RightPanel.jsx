@@ -2,7 +2,7 @@ import BookBanner from "./books/BookBanner";
 import BookSectionMainComp from "./books/BookMainComp";
 import Filtered from "./books/Filtered";
 
-export default function RightPanel({ selectedGenre }) {
+export default function RightPanel({ selectedGenre}) {
   console.log("RightPanel received genre:", selectedGenre); // DEBUGGIN
 
   return (
@@ -11,11 +11,10 @@ export default function RightPanel({ selectedGenre }) {
         <BookBanner />
 
         {selectedGenre === "None" ? (
-          //<BookSectionMainComp />
-          <div>SHOWING MAIN BOOK SECTION </div>
+          <BookSectionMainComp />
+
         ) : (
-          //<Filtered genre={selectedGenre} />
-          <div> SHOWING FILTERED BOOKS FOR: {selectedGenre} </div>
+          <Filtered genre={selectedGenre} />
         )}
       </div>
     </div>

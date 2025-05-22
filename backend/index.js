@@ -6,6 +6,7 @@ const pool = require("./database/db");
 require("dotenv").config();
 
 const bookRoutes = require("./routes/loadbooks");
+const genreBookRoutes = require("./routes/genreBooks");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,9 @@ app.use(
 app.use(express.json());
 
 app.use("/api/books", bookRoutes);
+
+// Route for fetching books filtered by a single genre
+app.use("/api/genre", genreBookRoutes);
 
 // Basic check
 app.get("/", (req, res) => {
