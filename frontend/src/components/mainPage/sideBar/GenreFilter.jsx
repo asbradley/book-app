@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function GenreFilter() {
+export default function GenreFilter({ onGenreSelect }) {
   const [selectedGenre, setSelectedGenre] = useState("None");
 
   const genres = [
@@ -16,6 +16,10 @@ export default function GenreFilter() {
 
   const handleGenreClick = (genre) => {
     setSelectedGenre(genre);
+    onGenreSelect(genre); // notifies parent of new selection
+    
+    console.log("Selected Genre (from GenreFilter):", genre); // DEBUGGIN
+
   };
 
   return (
