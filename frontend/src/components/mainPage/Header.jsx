@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { BookOpen, Search } from "lucide-react";
 import { Link } from "react-router-dom";
+import NeedAccount from "./NeedAccountPage";
 
 export default function BookshelfNavbar() {
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [showPopup, setshowPopup] = useState(false);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -36,7 +39,10 @@ export default function BookshelfNavbar() {
 
       {/* Right Side - Wishlist and User Avatar */}
       <div className="flex items-center">
-        <button className="flex items-center text-gray-700 hover:text-gray-900 mr-4">
+        <button
+          className="flex items-center text-gray-700 hover:text-gray-900 mr-4"
+          onClick={() => setshowPopup(true)}
+        >
           <span className="mr-1">Wishlist</span>
         </button>
 
@@ -47,6 +53,8 @@ export default function BookshelfNavbar() {
             className="h-full w-full object-cover"
           />
         </div>
+
+        {showPopup ? <NeedAccount onClose={() => setshowPopup(false)} /> : null}
       </div>
     </div>
   );
