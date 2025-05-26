@@ -8,8 +8,7 @@ export default function MainPage() {
   const [selectedGenre, setSelectedGenre] = useState("None");
 
   return (
-    <div className="flex flex-col min-h-screen">
-            
+    <div className="flex flex-col min-h-screen"> 
       <BookshelfNavbar />
       <div className="flex flex-1">
         <BookshelfSidebar onGenreSelect={setSelectedGenre} />

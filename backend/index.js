@@ -7,9 +7,10 @@ require("dotenv").config();
 
 const bookRoutes = require("./routes/loadbooks");
 const genreBookRoutes = require("./routes/genreBooks");
+const authRoutes = require("./routes/auth")
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 app.use(
   cors({
@@ -24,6 +25,8 @@ app.use("/api/books", bookRoutes);
 
 // Route for fetching books filtered by a single genre
 app.use("/api/genre", genreBookRoutes);
+
+app.use("/api/auth", authRoutes);
 
 // Basic check
 app.get("/", (req, res) => {
