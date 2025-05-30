@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BookOpen, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import NeedAccount from "./NeedAccountPage";
+import profileImage from "../../assets/blank-profile.png"
 
 export default function BookshelfNavbar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,18 +38,15 @@ export default function BookshelfNavbar() {
         </div>
       </div>
 
-      {/* Right Side - Wishlist and User Avatar */}
+      {/* Right Side: User Avatar */}
       <div className="flex items-center">
-        <button
-          className="flex items-center text-gray-700 hover:text-gray-900 mr-4"
+        <div
           onClick={() => setshowPopup(true)}
+          className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden cursor-pointer"
+          title="Open user popup"
         >
-          <span className="mr-1">Wishlist</span>
-        </button>
-
-        <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
           <img
-            src="/api/placeholder/32/32"
+            src={profileImage}
             alt="User avatar"
             className="h-full w-full object-cover"
           />

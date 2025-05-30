@@ -7,6 +7,7 @@ import LoginPage from "./components/userAuthentication/LoginPage";
 import CreateAccount from "./components/userAuthentication/CreateAccount";
 import { useState, useEffect } from "react";
 
+// MAIN PAGE STARTUP
 
 export default function App() {
   return (
@@ -18,6 +19,8 @@ export default function App() {
     </BrowserRouter>
   )
 }
+  
+  
 
 
 
@@ -55,5 +58,12 @@ export default function App() {
     </BrowserRouter>
   );
 }
+*/
 
+/*
+export default function App() {
+  return (
+    <ProfilePage />
+  )
+}
 */
