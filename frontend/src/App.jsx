@@ -10,12 +10,24 @@ import { useState, useEffect } from "react";
 // MAIN PAGE STARTUP
 
 export default function App() {
+  
+  const [isLoggedin, setisLoggedin] = useState(false);
+
+
+  // Checks localStorage
+  useEffect(() => {
+    const storedStatus = localStorage.getItem("isLoggedin")
+    if (storedStatus === "true") {
+      setisLoggedin(true)
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<CreateAccount />} />
+        <Route path="/" element={<MainPage isLoggedin={isLoggedin}/>} />
+        <Route path="/login" element={<LoginPage setisLoggedin={setisLoggedin}/>} />
+        <Route path="/signup" element={<CreateAccount setisLoggedin={setisLoggedin}/>} />
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     

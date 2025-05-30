@@ -1,15 +1,19 @@
 import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function LoginPage() {
+export default function LoginPage({ setisLoggedin }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -39,8 +43,17 @@ export default function LoginPage() {
 
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
+
+        // Lets 'isLoggedin' state persists after page refresh
+        localStorage.setItem("isLoggedin", "true")
+
         setSuccess("Login Successful!");
+        setisLoggedin(true);
         setFormData({ email: "", password: "" });
+
+        setTimeout(() => {
+          navigate("/");
+        }, 500);
       }
     } catch (err) {
       // Fixed typo: err.response (not err.reponse)

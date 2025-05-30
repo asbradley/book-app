@@ -1,8 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
-export default function CreateAccount() {
+export default function CreateAccount({ setisLoggedin }) {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -12,6 +12,8 @@ export default function CreateAccount() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -66,17 +68,32 @@ export default function CreateAccount() {
         password: formData.password,
       });
 
+
+      console.log("Create account response:", response.data)
+      console.log("Token stored:", localStorage.getItem("token"))
+
+      localStorage.setItem("token", response.data.token)
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      localStorage.setItem("isLoggedin", "true")
+
       setSuccess(
-        "Account created successfully! Please check your email to verify your account."
+        "Account created successfully!"
       );
+
+      setisLoggedin(true)
+      
       setFormData({
         username: "",
         email: "",
         password: "",
         confirmPassword: "",
       });
-      // Optionally redirect to login page
-      // window.location.href = '/signin';
+      
+      setTimeout(() => {
+        navigate("/");
+      }, 500)
+
     } catch (err) {
       if (err.response) {
         // Server responded with a status other than 2xx
