@@ -9,6 +9,10 @@ import BookList from './BookList';
 export default function ProfilePage({ user }) {
   const [activeTab, setActiveTab] = useState('Books');
 
+  if (!user) {
+    return <p>Loading user profile...</p>
+  }
+
   return (
     <div className="max-w-3xl mx-auto p-4">
       <ProfileHeader user={user}/>

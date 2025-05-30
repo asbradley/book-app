@@ -5,7 +5,7 @@ export default function ProfileHeader({ user }) {
 
   // Conditional return: Render nothing or a loading message if user is not available
   if (!user) {
-    return <p>Loading profile data...</p>; // Or null, or a skeleton loader
+    return <p></p>; // Or null, or a skeleton loader
   }
 
   return (
