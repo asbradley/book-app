@@ -45,7 +45,7 @@ export default function LoginPage({ setisLoggedin }) {
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
         // Lets 'isLoggedin' state persists after page refresh
-        localStorage.setItem("isLoggedin", "true")
+        localStorage.setItem("isLoggedin", "true");
 
         setSuccess("Login Successful!");
         setisLoggedin(true);
@@ -128,12 +128,15 @@ export default function LoginPage({ setisLoggedin }) {
           </div>
         )}
 
-        <Link to="/signup">
-          <p className="text-center text-sm text-gray-500 mt-6">
-            Don't have an account?{" "}
-            <a className="text-blue-600 hover:underline font-medium">Sign up</a>
-          </p>
-        </Link>
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );

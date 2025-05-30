@@ -6,12 +6,12 @@ import BookList from './BookList';
 
 // You could import ReviewList, ShelfList when you create them
 
-export default function ProfilePage() {
+export default function ProfilePage({ user }) {
   const [activeTab, setActiveTab] = useState('Books');
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <ProfileHeader />
+      <ProfileHeader user={user}/>
       <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
       
       <div className="mt-6">

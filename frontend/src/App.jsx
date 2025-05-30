@@ -12,13 +12,15 @@ import { useState, useEffect } from "react";
 export default function App() {
   
   const [isLoggedin, setisLoggedin] = useState(false);
-
+  const [user, setUser] = useState(null)
 
   // Checks localStorage
   useEffect(() => {
     const storedStatus = localStorage.getItem("isLoggedin")
-    if (storedStatus === "true") {
+    const storedUser = localStorage.getItem("user")
+    if (storedStatus === "true" && storedUser) {
       setisLoggedin(true)
+      setUser(JSON.parse(storedUser))
     }
   }, []);
 
@@ -28,47 +30,9 @@ export default function App() {
         <Route path="/" element={<MainPage isLoggedin={isLoggedin}/>} />
         <Route path="/login" element={<LoginPage setisLoggedin={setisLoggedin}/>} />
         <Route path="/signup" element={<CreateAccount setisLoggedin={setisLoggedin}/>} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={<ProfilePage user={user}/>} />
       </Routes>
     
     </BrowserRouter>
   )
 }
-  
-  
-
-/*
-// THIS IS TESTING TO JUST SEE IF LOGIN WORKS PROPERLY
-export d efault function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  // Check authentication status on component mount and periodically
-  useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem("token");
-      const user = localStorage.getItem("user");
-
-      // Debug logging - remove this after testing
-      console.log("Token:", token);
-      console.log("User:", user);
-      console.log("Is authenticated:", !!(token && user));
-
-      setIsAuthenticated(!!(token && user));
-    };
-
-    // Check initially
-    checkAuth();
-
-    // Check every second for changes (simple polling)
-    const interval = setInterval(checkAuth, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <BrowserRouter>
-      <div>{isAuthenticated ? <MainPage /> : <LoginPage />}</div>
-    </BrowserRouter>
-  );
-}
-*/

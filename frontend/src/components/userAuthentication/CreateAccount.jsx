@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from "react-router-dom";
 
 export default function CreateAccount({ setisLoggedin }) {
   const [formData, setFormData] = useState({
@@ -68,32 +68,30 @@ export default function CreateAccount({ setisLoggedin }) {
         password: formData.password,
       });
 
+      console.log("Create account response:", response.data);
+      console.log("Token stored:", localStorage.getItem("token"));
 
-      console.log("Create account response:", response.data)
-      console.log("Token stored:", localStorage.getItem("token"))
-
-      localStorage.setItem("token", response.data.token)
+      localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      localStorage.setItem("isLoggedin", "true")
+      console.log(response.data.user);
 
-      setSuccess(
-        "Account created successfully!"
-      );
+      localStorage.setItem("isLoggedin", "true");
 
-      setisLoggedin(true)
-      
+      setSuccess("Account created successfully!");
+
+      setisLoggedin(true);
+
       setFormData({
         username: "",
         email: "",
         password: "",
         confirmPassword: "",
       });
-      
+
       setTimeout(() => {
         navigate("/");
-      }, 500)
-
+      }, 500);
     } catch (err) {
       if (err.response) {
         // Server responded with a status other than 2xx
@@ -209,12 +207,15 @@ export default function CreateAccount({ setisLoggedin }) {
           </button>
         </div>
 
-        <Link to="/login">
-          <p className="text-center text-sm text-gray-500 mt-6">
-            Already have an account?{" "}
-            <a className="text-blue-600 hover:underline font-medium">Sign in</a>
-          </p>
-        </Link>
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );
