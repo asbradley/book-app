@@ -16,6 +16,7 @@ export default function App() {
         <Route path="/" element={<MainPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<CreateAccount />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     
     </BrowserRouter>
@@ -23,8 +24,6 @@ export default function App() {
 }
   
   
-
-
 
 /*
 // THIS IS TESTING TO JUST SEE IF LOGIN WORKS PROPERLY
@@ -59,13 +58,5 @@ export d efault function App() {
       <div>{isAuthenticated ? <MainPage /> : <LoginPage />}</div>
     </BrowserRouter>
   );
-}
-*/
-
-/*
-export default function App() {
-  return (
-    <ProfilePage />
-  )
 }
 */

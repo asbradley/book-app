@@ -4,7 +4,10 @@ import { Link } from "react-router-dom";
 import NeedAccount from "./NeedAccountPage";
 import profileImage from "../../assets/blank-profile.png";
 
-export default function BookshelfNavbar() {
+
+import userProfileImage from "../../assets/Girl_Reading.png"
+
+export default function BookshelfNavbar({ isLoggedin }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [showPopup, setshowPopup] = useState(false);
@@ -38,29 +41,51 @@ export default function BookshelfNavbar() {
         </div>
       </div>
 
+
       {/* Right Side: User Avatar and Login Button */}
       <div className="flex items-center gap-7">
-        {/* Avatar */}
-        <div
-          onClick={() => setshowPopup(true)}
-          className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden cursor-pointer"
-          title="Open user popup"
-        >
-          <img
-            src={profileImage}
-            alt="User avatar"
-            className="h-full w-full object-cover"
-          />
-        </div>
+        {isLoggedin ? (
+          <>
+            {/* User is Logged in */}
+            <Link
+              to="/profile"
+              className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden cursor-pointer"
+            >
+              <img
+                src={userProfileImage} // Make sure this is a valid image URL or a prop
+                alt="User Avatar"
+                className="h-full w-full object-cover"
+              />
+            </Link>
+          </>
+        ) : (
+          <>
+            {/* User is NOT logged in */}
 
-        {/* Login Button */}
-        <Link to="/login">
-          <button className="text-sm px-4 py-1 border border-black rounded hover:bg-black hover:text-white transition">
-            Login
-          </button>
-        </Link>
+            {/* Avatar */}
+            <div
+              onClick={() => setshowPopup(true)}
+              className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden cursor-pointer"
+              title="Open user popup"
+            >
+              <img
+                src={profileImage} // Could be a default placeholder image
+                alt="User avatar"
+                className="h-full w-full object-cover"
+              />
+            </div>
 
-        {showPopup ? <NeedAccount onClose={() => setshowPopup(false)} /> : null}
+            {/* Login Button */}
+            <Link to="/login">
+              <button className="text-sm px-4 py-1 border border-black rounded hover:bg-black hover:text-white transition">
+                Login
+              </button>
+            </Link>
+
+            {/* Optional popup */}
+            {showPopup && <NeedAccount onClose={() => setshowPopup(false)} />}
+          </>
+        )}
       </div>
     </div>
   );
