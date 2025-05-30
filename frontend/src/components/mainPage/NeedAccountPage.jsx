@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function NeedAccount({ onClose }) {
   return (
     <div
@@ -24,13 +26,22 @@ export default function NeedAccount({ onClose }) {
           to continue and enjoy all features!
         </p>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-7">
           <button
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-200 ease-in-out transform hover:scale-105" // Larger button, better styling and hover effect
             onClick={onClose}
           >
             Got It!
           </button>
+
+          <Link to="/login">
+            <button
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-200 ease-in-out transform hover:scale-105" // Larger button, better styling and hover effect
+              onClick={onClose}
+            >
+              Login
+            </button>
+          </Link>
         </div>
       </div>
     </div>

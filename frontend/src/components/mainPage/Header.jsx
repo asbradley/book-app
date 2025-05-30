@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BookOpen, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import NeedAccount from "./NeedAccountPage";
-import profileImage from "../../assets/blank-profile.png"
+import profileImage from "../../assets/blank-profile.png";
 
 export default function BookshelfNavbar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,8 +38,9 @@ export default function BookshelfNavbar() {
         </div>
       </div>
 
-      {/* Right Side: User Avatar */}
-      <div className="flex items-center">
+      {/* Right Side: User Avatar and Login Button */}
+      <div className="flex items-center gap-7">
+        {/* Avatar */}
         <div
           onClick={() => setshowPopup(true)}
           className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden cursor-pointer"
@@ -51,6 +52,13 @@ export default function BookshelfNavbar() {
             className="h-full w-full object-cover"
           />
         </div>
+
+        {/* Login Button */}
+        <Link to="/login">
+          <button className="text-sm px-4 py-1 border border-black rounded hover:bg-black hover:text-white transition">
+            Login
+          </button>
+        </Link>
 
         {showPopup ? <NeedAccount onClose={() => setshowPopup(false)} /> : null}
       </div>

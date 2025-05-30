@@ -14,6 +14,8 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<CreateAccount />} />
       </Routes>
     
     </BrowserRouter>
@@ -26,7 +28,7 @@ export default function App() {
 
 /*
 // THIS IS TESTING TO JUST SEE IF LOGIN WORKS PROPERLY
-export default function App() {
+export d efault function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Check authentication status on component mount and periodically

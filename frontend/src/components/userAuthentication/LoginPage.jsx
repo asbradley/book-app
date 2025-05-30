@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -32,7 +33,6 @@ export default function LoginPage() {
 
       // Handle successful login
       if (response.data.token) {
-        
         // Add this after the successful response
         console.log("Login response:", response.data);
         console.log("Token stored:", localStorage.getItem("token"));
@@ -115,15 +115,12 @@ export default function LoginPage() {
           </div>
         )}
 
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Don't have an account?{" "}
-          <a
-            href="/signup"
-            className="text-blue-600 hover:underline font-medium"
-          >
-            Sign up
-          </a>
-        </p>
+        <Link to="/signup">
+          <p className="text-center text-sm text-gray-500 mt-6">
+            Don't have an account?{" "}
+            <a className="text-blue-600 hover:underline font-medium">Sign up</a>
+          </p>
+        </Link>
       </div>
     </div>
   );
