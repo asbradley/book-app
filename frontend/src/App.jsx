@@ -7,7 +7,7 @@ import LoginPage from "./components/userAuthentication/LoginPage";
 import CreateAccount from "./components/userAuthentication/CreateAccount";
 import { useState, useEffect } from "react";
 
-/*
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -15,12 +15,13 @@ export default function App() {
         <Route path="/" element={<MainPage />} />
       </Routes>
     
-    </Browse jrRouter>
+    </BrowserRouter>
   )
 }
-*/
 
 
+
+/*
 // THIS IS TESTING TO JUST SEE IF LOGIN WORKS PROPERLY
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -54,3 +55,5 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+*/
