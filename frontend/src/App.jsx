@@ -10,29 +10,42 @@ import { useState, useEffect } from "react";
 // MAIN PAGE STARTUP
 
 export default function App() {
-  
   const [isLoggedin, setisLoggedin] = useState(false);
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(null);
 
   // Checks localStorage
   useEffect(() => {
-    const storedStatus = localStorage.getItem("isLoggedin")
-    const storedUser = localStorage.getItem("user")
+    const storedStatus = localStorage.getItem("isLoggedin");
+    const storedUser = localStorage.getItem("user");
     if (storedStatus === "true" && storedUser) {
-      setisLoggedin(true)
-      setUser(JSON.parse(storedUser))
+      setisLoggedin(true);
+
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Error parsing stored user data:", error);
+        localStorage.removeItem("isLoggedin");
+        localStorage.removeItem("user");
+        setisLoggedin(false);
+        setUser(null);
+      }
     }
   }, []);
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage isLoggedin={isLoggedin}/>} />
-        <Route path="/login" element={<LoginPage setisLoggedin={setisLoggedin}/>} />
-        <Route path="/signup" element={<CreateAccount setisLoggedin={setisLoggedin}/>} />
-        <Route path="/profile" element={<ProfilePage user={user}/>} />
+        <Route path="/" element={<MainPage isLoggedin={isLoggedin} />} />
+        <Route
+          path="/login"
+          element={<LoginPage setisLoggedin={setisLoggedin} setUser={setUser} />}
+        />
+        <Route
+          path="/signup"
+          element={<CreateAccount setisLoggedin={setisLoggedin} setUser={setUser} />}
+        />
+        <Route path="/profile" element={<ProfilePage user={user} />} />
       </Routes>
-    
     </BrowserRouter>
-  )
+  );
 }

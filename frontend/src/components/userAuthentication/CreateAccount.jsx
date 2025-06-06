@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function CreateAccount({ setisLoggedin }) {
+export default function CreateAccount({ setisLoggedin, setUser }) {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -81,6 +81,8 @@ export default function CreateAccount({ setisLoggedin }) {
       setSuccess("Account created successfully!");
 
       setisLoggedin(true);
+
+      setUser(response.data.user);
 
       setFormData({
         username: "",

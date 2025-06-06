@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-export default function LoginPage({ setisLoggedin }) {
+export default function LoginPage({ setisLoggedin, setUser }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -49,6 +49,10 @@ export default function LoginPage({ setisLoggedin }) {
 
         setSuccess("Login Successful!");
         setisLoggedin(true);
+
+        setUser(response.data.user);
+
+        
         setFormData({ email: "", password: "" });
 
         setTimeout(() => {
