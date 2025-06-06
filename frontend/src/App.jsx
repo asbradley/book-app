@@ -50,7 +50,7 @@ export default function App() {
             <CreateAccount setisLoggedin={setisLoggedin} setUser={setUser} />
           }
         />
-        <Route path="/profile" element={<ProfilePage user={user} />} />
+        <Route path="/profile" element={<ProfilePage user={user} setIsLoggedin={setisLoggedin} />} />
 
         <Route
           path="/profile/edit"
