@@ -6,6 +6,8 @@ import ProfilePage from "./components/userPage/ProfilePage";
 import LoginPage from "./components/userAuthentication/LoginPage";
 import CreateAccount from "./components/userAuthentication/CreateAccount";
 import { useState, useEffect } from "react";
+import EditProfile from "./components/userPage/EditProfile";
+import { Edit } from "lucide-react";
 
 // MAIN PAGE STARTUP
 
@@ -38,13 +40,29 @@ export default function App() {
         <Route path="/" element={<MainPage isLoggedin={isLoggedin} />} />
         <Route
           path="/login"
-          element={<LoginPage setisLoggedin={setisLoggedin} setUser={setUser} />}
+          element={
+            <LoginPage setisLoggedin={setisLoggedin} setUser={setUser} />
+          }
         />
         <Route
           path="/signup"
-          element={<CreateAccount setisLoggedin={setisLoggedin} setUser={setUser} />}
+          element={
+            <CreateAccount setisLoggedin={setisLoggedin} setUser={setUser} />
+          }
         />
         <Route path="/profile" element={<ProfilePage user={user} />} />
+
+        <Route
+          path="/profile/edit"
+          element={
+            <EditProfile
+              user={user}
+              onSave={(updatedUser) => {
+                setUser(updatedUser); // Updated state with new user
+              }}
+            />
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
