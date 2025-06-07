@@ -1,26 +1,27 @@
-const express = require("express")
-const axios = require("axios")
+const express = require("express");
+const axios = require("axios");
 
 const router = express.Router();
 
 const KEY = process.env.GOOGLE_BOOKS_API_KEY;
 
-
 // Get all books from multiple genres
 router.get("/", async (req, res) => {
   const genres = ["Romance", "Fantasy", "Mystery", "Science Fiction"];
   try {
-    
     // For each genre, send API request and format result
     const booksPromises = genres.map(async (genre) => {
-      const response = await axios.get("https://www.googleapis.com/books/v1/volumes", {
-        params: {
-          q: `subject:${genre}`, // Searches by genre
-          maxResults: 7, // Limiting to 6 per genre for faster loading
-          orderBy: "relevance", // get relavent books
-          key: KEY, // API key
-        },
-      });
+      const response = await axios.get(
+        "https://www.googleapis.com/books/v1/volumes",
+        {
+          params: {
+            q: `subject:${genre}`, // Searches by genre
+            maxResults: 7, // Limiting to 7 per genre for faster loading
+            orderBy: "relevance", // get relavent books
+            key: KEY, // API key
+          },
+        }
+      );
 
       // Maps the raw data to a book object
       return response.data.items.map((book) => {

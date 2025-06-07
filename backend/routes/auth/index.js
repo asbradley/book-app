@@ -164,8 +164,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-
-
 // Protected route example - requires authentication
 router.get("/profile", authenticateToken, async (req, res) => {
   try {
@@ -186,8 +184,6 @@ router.get("/profile", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-
 
 // Verify token route - useful for checking if user is still logged in
 router.get("/verify", authenticateToken, (req, res) => {

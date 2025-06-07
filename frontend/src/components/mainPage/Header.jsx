@@ -3,8 +3,6 @@ import { BookOpen, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import NeedAccount from "./NeedAccountPage";
 import profileImage from "../../assets/blank-profile.png";
-
-
 import userProfileImage from "../../assets/Girl_Reading.png"
 
 export default function BookshelfNavbar({ isLoggedin }) {
