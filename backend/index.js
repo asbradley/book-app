@@ -10,6 +10,12 @@ const genreBookRoutes = require("./routes/genreBooks");
 const authRoutes = require("./routes/auth")
 
 
+// HISTORUY SECTION TESTING
+const historyRoute = require("./routes/history")
+
+
+
+
 const userRoutes = require("./routes/account") // ADDDED FOR ACCOUNT STUFF
 
 const app = express();
@@ -28,6 +34,11 @@ app.use("/api/books", bookRoutes);
 app.use("/api/genre", genreBookRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+
+
+
+app.use("/api/history", historyRoute);
+
 
 // Basic check
 app.get("/", (req, res) => {
