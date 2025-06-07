@@ -21,7 +21,7 @@ export default function ProfilePage({ user, setIsLoggedin }) {
       <div className="mt-6">
         {activeTab === 'Books' && <BookList />}
         {activeTab === 'Reviews' && <div>Reviews coming soon...</div>}
-        {activeTab === 'Shelves' && <div>Shelves coming soon...</div>}
+        {activeTab === 'Recommendations' && <div>Recommendations coming soon...</div>}
       </div>
     </div>
   );
