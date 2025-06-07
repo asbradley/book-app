@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-export default function AddBookModal({ onClose }) {
+export default function AddBookModal({ onClose, onBookSelect }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
+  const [loading, setLoading] = useState(false);
 
-  // Debounce effect: waits 500ms after typing stops
+  // Debounce effect
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedTerm(searchTerm);
@@ -15,19 +16,27 @@ export default function AddBookModal({ onClose }) {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  // Trigger API request only when debouncedTerm is long enough
+  // Trigger API call
   useEffect(() => {
     const fetchBooks = async () => {
       if (debouncedTerm.length < 3) {
-        setSearchResults([]); // Clear results if too short
+        setSearchResults([]);
+        setLoading(false);
         return;
       }
 
+      setLoading(true);
+
       try {
-        const response = await axios.get(`/api/history/user-search?q=${debouncedTerm}`);
+        const response = await axios.get(
+          `/api/history/user-search?q=${debouncedTerm}`
+        );
         setSearchResults(response.data);
       } catch (error) {
         console.error("Error fetching books:", error);
+        setSearchResults([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -52,15 +61,18 @@ export default function AddBookModal({ onClose }) {
           className="w-full p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        {/* Show search results */}
+        {/* Search Results */}
         <div className="mt-4 space-y-3 max-h-60 overflow-y-auto">
-          {searchResults.length === 0 && debouncedTerm.length >= 3 ? (
+          {loading ? (
+            <p className="text-sm text-gray-500">Loading...</p>
+          ) : debouncedTerm.length >= 3 && searchResults.length === 0 ? (
             <p className="text-sm text-gray-500">No results found.</p>
           ) : (
             searchResults.map((book) => (
               <div
                 key={book.id}
-                className="flex items-start space-x-3 p-2 rounded-xl border border-gray-200 hover:bg-gray-50"
+                className="flex items-start space-x-3 p-2 rounded-xl border border-gray-200 hover:bg-gray-50 cursor-pointer"
+                onClick={() => onBookSelect(book)}
               >
                 <img
                   src={book.coverImage}
