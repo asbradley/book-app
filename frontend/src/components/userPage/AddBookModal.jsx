@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-export default function AddBookModal({ onClose, onBookSelect }) {
+export default function AddBookModal({ onClose, onBookSelect, userId }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
@@ -72,7 +72,24 @@ export default function AddBookModal({ onClose, onBookSelect }) {
               <div
                 key={book.id}
                 className="flex items-start space-x-3 p-2 rounded-xl border border-gray-200 hover:bg-gray-50 cursor-pointer"
-                onClick={() => onBookSelect(book)}
+                onClick={async () => {
+                  try {
+                    await axios.post("/api/history/user-books", {
+                      user_id: userId,
+                      book_id: book.id,
+                      title: book.title,
+                      author: book.author,
+                      cover_image: book.coverImage,
+                    });
+
+                    // Calls prop to update UI state
+                    onBookSelect(book);
+                    onClose() // Close modal after adding
+
+                  } catch (err) {
+                    console.error("Error saving book to DB:", err)
+                  }
+                }}
               >
                 <img
                   src={book.coverImage}

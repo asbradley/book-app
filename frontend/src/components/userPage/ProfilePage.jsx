@@ -19,7 +19,7 @@ export default function ProfilePage({ user, setIsLoggedin }) {
       <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
       
       <div className="mt-6">
-        {activeTab === 'Books' && <BookList />}
+        {activeTab === 'Books' && <BookList userId={user.id}/>}
         {activeTab === 'Reviews' && <div>Reviews coming soon...</div>}
         {activeTab === 'Recommendations' && <div>Recommendations coming soon...</div>}
       </div>

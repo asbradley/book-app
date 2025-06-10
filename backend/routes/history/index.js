@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require("../../models/User");
 const axios = require("axios")
 const KEY = process.env.GOOGLE_BOOKS_API_KEY;
-const db = require("../../database")
+const db = require("../../database/db")
 
 // Get the frontend API request for the user profile history section.
 router.get("/user-search", async (req, res) => {
@@ -79,6 +79,24 @@ router.post("/user-books", async(req, res) => {
 
     console.error("Error saving book:", error);
     res.status(500).json({message: "Failed to save deh book!"})
+  }
+})
+
+
+// Route to get users history list
+router.get("/user-books", async(req, res) => {
+  const { user_id } = req.query;
+  const query = `
+    SELECT * FROM user_books WHERE user_id = ?
+  `;
+  
+  try {
+  const [rows] = await db.execute(query, [user_id]);
+  res.json(rows);
+
+  } catch (error) {
+    console.error("Error getting user books:", error);
+    res.status(500).json({message: "Failed to get user books"})
   }
 })
 

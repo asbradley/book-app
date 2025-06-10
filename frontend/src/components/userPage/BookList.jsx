@@ -1,9 +1,28 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import AddBookModal from "./AddBookModal";
+import axios from "axios";
 
-export default function BookList() {
+
+export default function BookList({ userId }) {
   const [showSearch, setShowSearch] = useState(false);
   const [books, setBooks] = useState([]);
+
+
+  // Load the users books from their history
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await axios.get(`/api/history/user-books?user_id=${userId}`);        setBooks(response.data)
+      } catch (error) {
+        console.error("Error fetching books:", error)
+      }
+    }
+    fetchBooks()
+  }, [userId]);
+
+
+
+
 
   const handleAddBook = (book) => {
     setBooks((prevBooks) => [...prevBooks, book]);
@@ -16,14 +35,19 @@ export default function BookList() {
         <AddBookModal
           onClose={() => setShowSearch(false)}
           onBookSelect={handleAddBook}
+          userId={userId}
         />
       )}
 
       <ul className="mt-6 space-y-4">
         {books.map((book) => (
           <li key={book.id} className="flex items-start space-x-4">
+            
+            {/* THIS WAS coverImage */}
             <img
-              src={book.coverImage}
+              src={book.cover_image} 
+
+
               alt={book.title}
               className="w-16 h-24 object-cover"
             />
