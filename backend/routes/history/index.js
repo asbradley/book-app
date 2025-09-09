@@ -100,6 +100,63 @@ router.get("/user-books", async(req, res) => {
   }
 })
 
+// Route to get book recommendations
+router.get("/recommendations", async (req, res) => {
+  const { user_id } = req.query;
+
+  try {
+    // Step 1: fetch books
+    const [rows] = await db.execute(
+      "SELECT title FROM user_books WHERE user_id = ?",
+      [user_id]
+    );
+
+    if (rows.length === 0) {
+      return res.json({ recommendations: [] });
+    }
+
+    const bookTitles = rows.map(b => b.title).join(", ");
+    const prompt = `Recommend 5 books similar to these: ${bookTitles}.
+                    Return only titles in a JSON array.`;
+
+    // Step 2: call OpenAI
+    const openAiResponse = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPEN_AI_KEY}`,
+        },
+      }
+    );
+
+    const text = openAiResponse.data.choices[0].message.content;
+    let recommendations = [];
+    try {
+      recommendations = JSON.parse(text);
+    } catch {
+      recommendations = [];
+    }
+
+    res.json({ recommendations });
+  } catch (error) {
+    console.error("Error getting recommendations:", error?.response?.data || error);
+
+    if (error.response && error.response.status === 429) {
+      return res
+        .status(429)
+        .json({ message: "Rate limited by OpenAI. Please try again later." });
+    }
+
+    res.status(500).json({ message: "Failed to get recommendations" });
+  }
+});
+
+
 
 
 module.exports = router;

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import ProfileHeader from './ProfileHeader';
 import ProfileTabs from './ProfileTabs';
 import BookList from './BookList';
+import Recommendations from './Recommendations';
 
 // You could import ReviewList, ShelfList when you create them
 
@@ -21,7 +22,7 @@ export default function ProfilePage({ user, setIsLoggedin }) {
       <div className="mt-6">
         {activeTab === 'Books' && <BookList userId={user.id}/>}
         {activeTab === 'Reviews' && <div>Reviews coming soon...</div>}
-        {activeTab === 'Recommendations' && <div>Recommendations coming soon...</div>}
+        {activeTab === 'Recommendations' && <Recommendations userId={user.id} />}
       </div>
     </div>
   );
