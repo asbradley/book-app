@@ -4,9 +4,10 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test:db": "docker run -d --rm --name book-project-test-db -e MYSQL_ROOT_PASSWORD=test -e MYSQL_DATABASE=book_project_test -p 3307:3306 mysql:8.4"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,18 @@
     "mysql2": "^3.14.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.3.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFiles": [
+      "<rootDir>/tests/setupEnv.js"
+    ],
+    "globalSetup": "<rootDir>/tests/globalSetup.js",
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.js"
+    ]
   }
 }
