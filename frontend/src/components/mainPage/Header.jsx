@@ -1,17 +1,30 @@
-import { useState } from "react";
-import { BookOpen, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { BookOpen, Search, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import NeedAccount from "./NeedAccountPage";
 import profileImage from "../../assets/blank-profile.png";
 import userProfileImage from "../../assets/Girl_Reading.png"
 
-export default function BookshelfNavbar({ isLoggedin }) {
-  const [searchQuery, setSearchQuery] = useState("");
-
+// `searchQuery` is the active search (from the URL); `onSearch` is called with
+// the new query when the user submits, or "" when they clear it.
+export default function BookshelfNavbar({ isLoggedin, searchQuery = "", onSearch }) {
+  const [input, setInput] = useState(searchQuery);
   const [showPopup, setshowPopup] = useState(false);
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
+  // Keep the box in sync when the search changes elsewhere (e.g. back button,
+  // or clicking the logo, which clears it)
+  useEffect(() => {
+    setInput(searchQuery);
+  }, [searchQuery]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch?.(input.trim());
+  };
+
+  const clearSearch = () => {
+    setInput("");
+    onSearch?.("");
   };
 
   return (
@@ -25,18 +38,24 @@ export default function BookshelfNavbar({ isLoggedin }) {
 
       {/* Middle - Search Bar */}
       <div className="max-w-md w-full mx-4">
-        <div className="relative">
+        <form role="search" onSubmit={handleSubmit} className="relative">
           <div className="flex items-center border border-gray-300 rounded-full px-3 py-2 bg-gray-50">
             <Search className="h-4 w-4 text-gray-500 mr-2" />
             <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={handleSearchChange}
+              type="search"
+              placeholder="Search books by title or author"
+              aria-label="Search books"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               className="bg-transparent border-none outline-none w-full text-sm"
             />
+            {input && (
+              <button type="button" onClick={clearSearch} aria-label="Clear search">
+                <X className="h-4 w-4 text-gray-500 hover:text-black" />
+              </button>
+            )}
           </div>
-        </div>
+        </form>
       </div>
 
 

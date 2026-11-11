@@ -1,54 +1,50 @@
 const express = require("express");
-const axios = require("axios");
+const { searchBooks } = require("../utils/googleBooks");
 
 const router = express.Router();
 
-const KEY = process.env.GOOGLE_BOOKS_API_KEY;
+const HOME_PAGE_GENRES = ["Romance", "Fantasy", "Mystery", "Science Fiction"];
+const MIN_QUERY_LENGTH = 2;
+const MAX_QUERY_LENGTH = 100;
 
-// Get all books from multiple genres
+// Get books for the home page: a few from each of several genres
 router.get("/", async (req, res) => {
-  const genres = ["Romance", "Fantasy", "Mystery", "Science Fiction"];
   try {
-    // For each genre, send API request and format result
-    const booksPromises = genres.map(async (genre) => {
-      const response = await axios.get(
-        "https://www.googleapis.com/books/v1/volumes",
-        {
-          params: {
-            q: `subject:${genre}`, // Searches by genre
-            maxResults: 7, // Limiting to 7 per genre for faster loading
-            orderBy: "relevance", // get relavent books
-            key: KEY, // API key
-          },
-        }
-      );
+    // Fetch all genres in parallel, limiting to 7 per genre for faster loading
+    const booksByGenre = await Promise.all(
+      HOME_PAGE_GENRES.map(async (genre) => {
+        const books = await searchBooks(`subject:${genre}`, {
+          maxResults: 7,
+          orderBy: "relevance",
+        });
+        return books.map((book) => ({ ...book, genre }));
+      })
+    );
 
-      // Maps the raw data to a book object
-      return response.data.items.map((book) => {
-        const info = book.volumeInfo;
-        return {
-          id: book.id,
-          title: info.title,
-          author: info.authors ? info.authors[0] : "Unknown",
-          coverImage: info.imageLinks?.thumbnail || null,
-          genre: genre,
-          description: info.description || "",
-          link: info.infoLink || "",
-        };
-      });
-    });
-
-    // Waits for all genre requests to complete
-    const booksArrays = await Promise.all(booksPromises);
-
-    // Flatten array of arrays into a single arry of books
-    const allBooks = booksArrays.flat();
-
-    // Send list of books as JSON
-    res.json(allBooks);
+    // Flatten array of arrays into a single array of books
+    res.json(booksByGenre.flat());
   } catch (error) {
     console.error("Error fetching books:", error.message);
     res.status(500).json({ error: "Failed to fetch books" });
+  }
+});
+
+// Public search used by the header search bar (no login required).
+// GET /api/books/search?q=dune
+router.get("/search", async (req, res) => {
+  const query = (req.query.q || "").trim();
+
+  if (query.length < MIN_QUERY_LENGTH || query.length > MAX_QUERY_LENGTH) {
+    return res.status(400).json({
+      message: `Search must be between ${MIN_QUERY_LENGTH} and ${MAX_QUERY_LENGTH} characters`,
+    });
+  }
+
+  try {
+    res.json(await searchBooks(query, { maxResults: 20 }));
+  } catch (error) {
+    console.error("Error searching books:", error.message);
+    res.status(500).json({ error: "Failed to search books" });
   }
 });
 

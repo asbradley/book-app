@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import BookDetail from "./BookDetailed";
 
 
-export default function BookSectionMainComp() {
+export default function BookSectionMainComp({ isLoggedin }) {
 
   // State to holds book based on their genre
   const [booksByGenre, setBooksByGenre] = useState({})
@@ -80,7 +80,7 @@ export default function BookSectionMainComp() {
       ))}
 
       {selectedBook && (
-        <BookDetail book={selectedBook} onClose={() => setSelectedBook(null)} />
+        <BookDetail book={selectedBook} isLoggedin={isLoggedin} onClose={() => setSelectedBook(null)} />
       )}
     </>
   );

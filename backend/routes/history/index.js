@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const axios = require("axios")
-const KEY = process.env.GOOGLE_BOOKS_API_KEY;
 const db = require("../../database/db")
+const { searchBooks } = require("../../utils/googleBooks");
 const { authenticateToken } = require("../../middleware/authMiddleware");
 const { getRecommendations } = require("../../services/recommendations");
 
@@ -38,30 +37,8 @@ router.get("/user-search", async (req, res) => {
   // Allow user to search by author or title
   const googleSearchQuery = `intitle:${que} OR inauthor:${que}`;
 
-  // Send Google Books API request to get matching books based on title/author
   try {
-    const response = await axios.get(
-      "https://www.googleapis.com/books/v1/volumes",
-      {
-        params: {
-          q: googleSearchQuery,
-          key: KEY,
-          maxResults: 8,
-        },
-      }
-    );
-
-    // Return the data to the frontend
-    const books = response.data.items.map((book) => {
-      const info = book.volumeInfo;
-      return {
-        id: book.id,
-        title: info.title,
-        author: info.authors ? info.authors[0] : "Unknown",
-        coverImage: info.imageLinks?.thumbnail || null,
-      };
-    });
-
+    const books = await searchBooks(googleSearchQuery, { maxResults: 8 });
     res.json(books);
   } catch (error) {
     console.error(
