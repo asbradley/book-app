@@ -13,7 +13,7 @@ export default function Recommendations({ userId }) {
 
       try {
         // Call your backend route (not OpenAI directly!)
-        const response = await axios.get(`/api/history/recommendations?user_id=${userId}`);
+        const response = await axios.get("/api/history/recommendations");
         const data = response.data;
 
         if (data.recommendations && data.recommendations.length > 0) {

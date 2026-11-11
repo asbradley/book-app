@@ -4,6 +4,12 @@ const User = require("../../models/User");
 const axios = require("axios")
 const KEY = process.env.GOOGLE_BOOKS_API_KEY;
 const db = require("../../database/db")
+const { authenticateToken } = require("../../middleware/authMiddleware");
+
+// Every history route is user-specific, so require a valid JWT for all of them.
+// The user's ID always comes from the verified token (req.user.userId), never
+// from the request body/query, so a user can only read/write their own data.
+router.use(authenticateToken);
 
 // Get the frontend API request for the user profile history section.
 router.get("/user-search", async (req, res) => {
@@ -56,10 +62,11 @@ router.get("/user-search", async (req, res) => {
 
 // Route to save a book to the user's history list after adding it
 router.post("/user-books", async(req, res) => {
-  const { user_id, book_id, title, author, cover_image} = req.body;
+  const user_id = req.user.userId;
+  const { book_id, title, author, cover_image } = req.body;
 
   // Validation
-  if (!user_id || !book_id || !title) {
+  if (!book_id || !title) {
     return res.status(400).json({ message: "Missing field "})
   }
 
@@ -85,7 +92,7 @@ router.post("/user-books", async(req, res) => {
 
 // Route to get users history list
 router.get("/user-books", async(req, res) => {
-  const { user_id } = req.query;
+  const user_id = req.user.userId;
   const query = `
     SELECT * FROM user_books WHERE user_id = ?
   `;
@@ -102,7 +109,7 @@ router.get("/user-books", async(req, res) => {
 
 // Route to get book recommendations
 router.get("/recommendations", async (req, res) => {
-  const { user_id } = req.query;
+  const user_id = req.user.userId;
 
   try {
     // Step 1: fetch books

@@ -12,7 +12,8 @@ export default function BookList({ userId }) {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await axios.get(`/api/history/user-books?user_id=${userId}`);        setBooks(response.data)
+        const response = await axios.get("/api/history/user-books");
+        setBooks(response.data)
       } catch (error) {
         console.error("Error fetching books:", error)
       }

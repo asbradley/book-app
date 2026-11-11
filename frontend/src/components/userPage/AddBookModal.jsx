@@ -75,7 +75,6 @@ export default function AddBookModal({ onClose, onBookSelect, userId }) {
                 onClick={async () => {
                   try {
                     await axios.post("/api/history/user-books", {
-                      user_id: userId,
                       book_id: book.id,
                       title: book.title,
                       author: book.author,
