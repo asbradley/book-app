@@ -1,11 +1,37 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { SHELVES } from "./shelves";
 
-export default function AddBookModal({ onClose, onBookSelect, userId }) {
+export default function AddBookModal({ onClose, onBookSelect }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
   const [loading, setLoading] = useState(false);
+  const [shelf, setShelf] = useState("read");
+  const [addError, setAddError] = useState("");
+
+  // Saves the chosen book to the selected shelf and hands the saved row back
+  const addBook = async (book) => {
+    setAddError("");
+    try {
+      const response = await axios.post("/api/history/user-books", {
+        book_id: book.id,
+        title: book.title,
+        author: book.author,
+        cover_image: book.coverImage,
+        status: shelf,
+      });
+      onBookSelect(response.data);
+      onClose();
+    } catch (err) {
+      console.error("Error saving book to DB:", err);
+      setAddError(
+        err.response?.status === 409
+          ? "That book is already on your shelves."
+          : "Failed to add book. Please try again."
+      );
+    }
+  };
 
   // Debounce effect
   useEffect(() => {
@@ -28,9 +54,10 @@ export default function AddBookModal({ onClose, onBookSelect, userId }) {
       setLoading(true);
 
       try {
-        const response = await axios.get(
-          `/api/history/user-search?q=${debouncedTerm}`
-        );
+        // Pass as params so characters like "&" in a title are URL-encoded
+        const response = await axios.get("/api/history/user-search", {
+          params: { q: debouncedTerm },
+        });
         setSearchResults(response.data);
       } catch (error) {
         console.error("Error fetching books:", error);
@@ -61,6 +88,23 @@ export default function AddBookModal({ onClose, onBookSelect, userId }) {
           className="w-full p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
+        <label className="flex items-center gap-2 mt-3 text-sm text-gray-600">
+          Add to shelf:
+          <select
+            value={shelf}
+            onChange={(e) => setShelf(e.target.value)}
+            className="border border-gray-300 rounded-lg px-2 py-1"
+          >
+            {SHELVES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {addError && <p className="text-sm text-red-600 mt-3">{addError}</p>}
+
         {/* Search Results */}
         <div className="mt-4 space-y-3 max-h-60 overflow-y-auto">
           {loading ? (
@@ -72,23 +116,7 @@ export default function AddBookModal({ onClose, onBookSelect, userId }) {
               <div
                 key={book.id}
                 className="flex items-start space-x-3 p-2 rounded-xl border border-gray-200 hover:bg-gray-50 cursor-pointer"
-                onClick={async () => {
-                  try {
-                    await axios.post("/api/history/user-books", {
-                      book_id: book.id,
-                      title: book.title,
-                      author: book.author,
-                      cover_image: book.coverImage,
-                    });
-
-                    // Calls prop to update UI state
-                    onBookSelect(book);
-                    onClose() // Close modal after adding
-
-                  } catch (err) {
-                    console.error("Error saving book to DB:", err)
-                  }
-                }}
+                onClick={() => addBook(book)}
               >
                 <img
                   src={book.coverImage}

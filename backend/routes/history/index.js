@@ -11,6 +11,19 @@ const { getRecommendations } = require("../../services/recommendations");
 // from the request body/query, so a user can only read/write their own data.
 router.use(authenticateToken);
 
+// Shelves a book can be on (matches the ENUM on user_books.status)
+const STATUSES = ["want_to_read", "reading", "read"];
+const MAX_REVIEW_LENGTH = 5000;
+
+// Fetches one of the user's saved books by its Google Books ID
+async function getUserBook(userId, bookId) {
+  const [rows] = await db.execute(
+    "SELECT * FROM user_books WHERE user_id = ? AND book_id = ?",
+    [userId, bookId]
+  );
+  return rows[0];
+}
+
 // Get the frontend API request for the user profile history section.
 router.get("/user-search", async (req, res) => {
   const que = req.query.q;
@@ -63,21 +76,26 @@ router.get("/user-search", async (req, res) => {
 // Route to save a book to the user's history list after adding it
 router.post("/user-books", async(req, res) => {
   const user_id = req.user.userId;
-  const { book_id, title, author, cover_image } = req.body;
+  const { book_id, title, author, cover_image, status = "read" } = req.body;
 
   // Validation
   if (!book_id || !title) {
     return res.status(400).json({ message: "Missing field "})
   }
+  if (!STATUSES.includes(status)) {
+    return res.status(400).json({ message: "Invalid status" });
+  }
 
   try {
     const query = `
-      INSERT INTO user_books (user_id, book_id, title, author, cover_image)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO user_books (user_id, book_id, title, author, cover_image, status)
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
 
-    await db.execute(query, [user_id, book_id, title, author, cover_image])
-    res.status(201).json({ message: "Book saved success!"})
+    await db.execute(query, [user_id, book_id, title, author ?? null, cover_image ?? null, status])
+
+    // Return the saved row so the client renders exactly what's in the database
+    res.status(201).json(await getUserBook(user_id, book_id));
 
   } catch (error) {
     if (error.code == `ER_DUP_ENTRY`) {
@@ -94,7 +112,7 @@ router.post("/user-books", async(req, res) => {
 router.get("/user-books", async(req, res) => {
   const user_id = req.user.userId;
   const query = `
-    SELECT * FROM user_books WHERE user_id = ?
+    SELECT * FROM user_books WHERE user_id = ? ORDER BY created_at DESC
   `;
   
   try {
@@ -107,6 +125,85 @@ router.get("/user-books", async(req, res) => {
   }
 })
 
+// Update a saved book's shelf, rating and/or review.
+// Body may contain any of: { status, rating (1-5 or null), review (string or null) }.
+// Returns the updated row.
+router.patch("/user-books/:bookId", async (req, res) => {
+  const user_id = req.user.userId;
+  const { bookId } = req.params;
+  const updates = {};
+
+  if ("status" in req.body) {
+    if (!STATUSES.includes(req.body.status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+    updates.status = req.body.status;
+  }
+
+  if ("rating" in req.body) {
+    const { rating } = req.body;
+    if (rating !== null && !(Number.isInteger(rating) && rating >= 1 && rating <= 5)) {
+      return res.status(400).json({ message: "Rating must be a whole number from 1 to 5" });
+    }
+    updates.rating = rating;
+  }
+
+  if ("review" in req.body) {
+    const { review } = req.body;
+    if (review !== null && typeof review !== "string") {
+      return res.status(400).json({ message: "Review must be text" });
+    }
+    if (review && review.length > MAX_REVIEW_LENGTH) {
+      return res.status(400).json({ message: `Review must be under ${MAX_REVIEW_LENGTH} characters` });
+    }
+    updates.review = review?.trim() || null; // store empty reviews as NULL
+  }
+
+  const columns = Object.keys(updates);
+  if (columns.length === 0) {
+    return res.status(400).json({ message: "Nothing to update" });
+  }
+
+  try {
+    // Column names come only from the fixed set above, never from user input,
+    // so it's safe to build the SET clause from them. Values stay parameterized.
+    const setClause = columns.map((column) => `${column} = ?`).join(", ");
+    await db.execute(
+      `UPDATE user_books SET ${setClause} WHERE user_id = ? AND book_id = ?`,
+      [...Object.values(updates), user_id, bookId]
+    );
+
+    const book = await getUserBook(user_id, bookId);
+    if (!book) {
+      return res.status(404).json({ message: "Book not found on your list" });
+    }
+    res.json(book);
+  } catch (error) {
+    console.error("Error updating book:", error);
+    res.status(500).json({ message: "Failed to update book" });
+  }
+});
+
+// Remove a book from the user's list
+router.delete("/user-books/:bookId", async (req, res) => {
+  const user_id = req.user.userId;
+
+  try {
+    const [result] = await db.execute(
+      "DELETE FROM user_books WHERE user_id = ? AND book_id = ?",
+      [user_id, req.params.bookId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Book not found on your list" });
+    }
+    res.status(204).end();
+  } catch (error) {
+    console.error("Error removing book:", error);
+    res.status(500).json({ message: "Failed to remove book" });
+  }
+});
+
 // Route to get AI book recommendations based on the user's history.
 // Returns { recommendations: [{ id, title, author, coverImage, description, link, reason }] }.
 // Results are cached per user; pass ?refresh=true to generate a new set.
@@ -116,7 +213,7 @@ router.get("/recommendations", async (req, res) => {
 
   try {
     const [rows] = await db.execute(
-      "SELECT book_id, title, author FROM user_books WHERE user_id = ?",
+      "SELECT book_id, title, author, status, rating FROM user_books WHERE user_id = ?",
       [user_id]
     );
 

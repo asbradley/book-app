@@ -17,9 +17,10 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Books a user has added to their reading history.
+-- Books on a user's shelves, with their optional rating and review.
 -- book_id is the Google Books volume ID; title/author/cover are cached copies
 -- so the profile page can render without calling the Google Books API.
+-- (Existing databases: apply migrations/001_add_shelves_ratings_reviews.sql.)
 CREATE TABLE IF NOT EXISTS `user_books` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
@@ -27,8 +28,13 @@ CREATE TABLE IF NOT EXISTS `user_books` (
   `title` varchar(255) NOT NULL,
   `author` varchar(255) DEFAULT NULL,
   `cover_image` text,
+  `status` enum('want_to_read', 'reading', 'read') NOT NULL DEFAULT 'read',
+  `rating` tinyint DEFAULT NULL,
+  `review` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_user_book` (`user_id`, `book_id`),
-  CONSTRAINT `user_books_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  CONSTRAINT `user_books_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `rating_range` CHECK (`rating` IS NULL OR `rating` BETWEEN 1 AND 5)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
