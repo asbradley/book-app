@@ -7,7 +7,7 @@ import Recommendations from './Recommendations';
 
 // You could import ReviewList, ShelfList when you create them
 
-export default function ProfilePage({ user, setIsLoggedin }) {
+export default function ProfilePage({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('Books');
 
   if (!user) {
@@ -16,7 +16,7 @@ export default function ProfilePage({ user, setIsLoggedin }) {
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <ProfileHeader user={user} setIsLoggedin={setIsLoggedin}/>
+      <ProfileHeader user={user} onLogout={onLogout}/>
       <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
       
       <div className="mt-6">

@@ -32,6 +32,15 @@ export default function App() {
     }
   }, []);
 
+  // Clears every piece of auth state (storage + React state) in one place
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedin");
+    setisLoggedin(false);
+    setUser(null);
+  };
+
   return (
     <BrowserRouter>
       <Routes>
@@ -48,7 +57,7 @@ export default function App() {
             <CreateAccount setisLoggedin={setisLoggedin} setUser={setUser} />
           }
         />
-        <Route path="/profile" element={<ProfilePage user={user} setIsLoggedin={setisLoggedin} />} />
+        <Route path="/profile" element={<ProfilePage user={user} onLogout={handleLogout} />} />
 
         <Route
           path="/profile/edit"

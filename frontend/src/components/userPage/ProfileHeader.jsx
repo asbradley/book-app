@@ -2,7 +2,7 @@ import image from "../../assets/blank-profile.png";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-export default function ProfileHeader({ user, setIsLoggedin }) {
+export default function ProfileHeader({ user, onLogout }) {
   const avatar = user?.image || image;
   const navigate = useNavigate();
 
@@ -13,9 +13,7 @@ export default function ProfileHeader({ user, setIsLoggedin }) {
 
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setIsLoggedin(false);
+    onLogout();
     navigate("/"); // Go back to main page
   };
 
