@@ -21,10 +21,12 @@ const userRoutes = require("./routes/account") // ADDDED FOR ACCOUNT STUFF
 const app = express();
 const PORT = process.env.PORT;
 
+// Only allow the frontend's origin. Auth uses a Bearer token header (not
+// cookies), so credentials mode isn't needed. In local dev the CRA proxy makes
+// requests same-origin, so this mostly matters once the app is deployed.
 app.use(
   cors({
-    origin: "*",
-    credentials: true,
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
   })
 );
 
@@ -45,14 +47,14 @@ app.get("/", (req, res) => {
   res.send("Backend is running");
 });
 
-// Test DB connection
-app.get("/test-db", async (req, res) => {
+// Health check: confirms the server can reach the database without exposing data
+app.get("/api/health", async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM users"); // Change this line
-    res.send(`DB is working! Users: ${JSON.stringify(rows)}`); // Update response
+    await pool.query("SELECT 1");
+    res.json({ status: "ok", db: "connected" });
   } catch (err) {
     console.error("DB connection failed:", err);
-    res.status(500).send("Database connection error");
+    res.status(503).json({ status: "error", db: "unreachable" });
   }
 });
 
