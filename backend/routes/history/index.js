@@ -4,6 +4,7 @@ const axios = require("axios")
 const KEY = process.env.GOOGLE_BOOKS_API_KEY;
 const db = require("../../database/db")
 const { authenticateToken } = require("../../middleware/authMiddleware");
+const { getRecommendations } = require("../../services/recommendations");
 
 // Every history route is user-specific, so require a valid JWT for all of them.
 // The user's ID always comes from the verified token (req.user.userId), never
@@ -106,14 +107,16 @@ router.get("/user-books", async(req, res) => {
   }
 })
 
-// Route to get book recommendations
+// Route to get AI book recommendations based on the user's history.
+// Returns { recommendations: [{ id, title, author, coverImage, description, link, reason }] }.
+// Results are cached per user; pass ?refresh=true to generate a new set.
 router.get("/recommendations", async (req, res) => {
   const user_id = req.user.userId;
+  const refresh = req.query.refresh === "true";
 
   try {
-    // Step 1: fetch books
     const [rows] = await db.execute(
-      "SELECT title FROM user_books WHERE user_id = ?",
+      "SELECT book_id, title, author FROM user_books WHERE user_id = ?",
       [user_id]
     );
 
@@ -121,36 +124,18 @@ router.get("/recommendations", async (req, res) => {
       return res.json({ recommendations: [] });
     }
 
-    const bookTitles = rows.map(b => b.title).join(", ");
-    const prompt = `Recommend 5 books similar to these: ${bookTitles}.
-                    Return only titles in a JSON array.`;
-
-    // Step 2: call OpenAI
-    const openAiResponse = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPEN_AI_KEY}`,
-        },
-      }
-    );
-
-    const text = openAiResponse.data.choices[0].message.content;
-    let recommendations = [];
-    try {
-      recommendations = JSON.parse(text);
-    } catch {
-      recommendations = [];
-    }
-
+    const recommendations = await getRecommendations(user_id, rows, { refresh });
     res.json({ recommendations });
   } catch (error) {
     console.error("Error getting recommendations:", error?.response?.data || error);
+
+    // OpenAI also uses 429 for an exhausted account balance, which retrying
+    // won't fix, so report that as the service being unavailable instead
+    if (error.response?.data?.error?.type === "insufficient_quota") {
+      return res
+        .status(503)
+        .json({ message: "Recommendations are temporarily unavailable." });
+    }
 
     if (error.response && error.response.status === 429) {
       return res
