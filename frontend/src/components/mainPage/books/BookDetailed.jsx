@@ -1,4 +1,8 @@
-export default function BookModal({ book, onClose }) {
+import { Link } from "react-router-dom";
+import AddToShelf from "./AddToShelf";
+
+// Book detail popup. Logged-in users can add the book to a shelf from here.
+export default function BookModal({ book, onClose, isLoggedin = false }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 px-4">
       <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-6 relative">
@@ -29,17 +33,27 @@ export default function BookModal({ book, onClose }) {
               {book.description || "No description available."}
             </p>
 
-            {/* Link to book */}
-            {book.link && (
-              <a
-                href={book.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-              >
-                Learn More
-              </a>
-            )}
+            <div className="flex flex-wrap items-center gap-3 mt-4">
+              {isLoggedin ? (
+                <AddToShelf book={book} />
+              ) : (
+                <Link to="/login" className="text-sm text-blue-600 hover:underline">
+                  Log in to add this book to your shelves
+                </Link>
+              )}
+
+              {/* Link to book */}
+              {book.link && (
+                <a
+                  href={book.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                >
+                  Learn More
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>

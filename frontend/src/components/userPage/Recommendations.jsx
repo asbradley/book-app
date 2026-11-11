@@ -87,7 +87,7 @@ export default function Recommendations({ userId }) {
       )}
 
       {selectedBook && (
-        <BookModal book={selectedBook} onClose={() => setSelectedBook(null)} />
+        <BookModal book={selectedBook} isLoggedin onClose={() => setSelectedBook(null)} />
       )}
     </div>
   );

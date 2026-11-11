@@ -10,9 +10,9 @@
 //      so repeat visits don't cost an OpenAI call and any change invalidates it.
 
 const axios = require("axios");
+const { searchVolumes, toBook } = require("../utils/googleBooks");
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
-const GOOGLE_BOOKS_URL = "https://www.googleapis.com/books/v1/volumes";
 const MODEL = "gpt-4o-mini";
 
 // Ask for a few extra, since some may be dropped during Google Books lookup
@@ -146,26 +146,16 @@ function pickMatchingVolume(requested, items) {
 // Finds the Google Books volume for a suggestion, or null if none matches.
 async function findOnGoogleBooks({ title, author }) {
   try {
-    const response = await axios.get(GOOGLE_BOOKS_URL, {
-      params: {
-        q: `intitle:${title} inauthor:${author}`,
-        maxResults: 5,
-        key: process.env.GOOGLE_BOOKS_API_KEY,
-      },
+    const volumes = await searchVolumes(`intitle:${title} inauthor:${author}`, {
+      maxResults: 5,
     });
 
-    const item = pickMatchingVolume(title, response.data.items || []);
+    const item = pickMatchingVolume(title, volumes);
     if (!item) return null;
 
-    const info = item.volumeInfo;
-    return {
-      id: item.id,
-      title: info.title,
-      author: info.authors?.[0] || author,
-      coverImage: info.imageLinks?.thumbnail || null,
-      description: info.description || "",
-      link: info.infoLink || "",
-    };
+    // Keep the AI's author if Google has none listed
+    const book = toBook(item);
+    return { ...book, author: item.volumeInfo.authors?.[0] || author };
   } catch (error) {
     console.error(`Google Books lookup failed for "${title}":`, error.message);
     return null;
