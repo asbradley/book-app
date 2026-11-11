@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Books on a user's shelves, with their optional rating and review.
 -- book_id is the Google Books volume ID; title/author/cover are cached copies
 -- so the profile page can render without calling the Google Books API.
--- (Existing databases: apply migrations/001_add_shelves_ratings_reviews.sql.)
+-- (Existing databases: apply the files in migrations/ in order.)
 CREATE TABLE IF NOT EXISTS `user_books` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
@@ -31,10 +31,21 @@ CREATE TABLE IF NOT EXISTS `user_books` (
   `status` enum('want_to_read', 'reading', 'read') NOT NULL DEFAULT 'read',
   `rating` tinyint DEFAULT NULL,
   `review` text,
+  `finished_at` timestamp NULL DEFAULT NULL, -- set when moved to 'read'
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_user_book` (`user_id`, `book_id`),
   CONSTRAINT `user_books_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `rating_range` CHECK (`rating` IS NULL OR `rating` BETWEEN 1 AND 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- One reading goal (number of books) per user per year
+CREATE TABLE IF NOT EXISTS `reading_goals` (
+  `user_id` int NOT NULL,
+  `year` smallint NOT NULL,
+  `target` smallint NOT NULL,
+  PRIMARY KEY (`user_id`, `year`),
+  CONSTRAINT `reading_goals_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `target_range` CHECK (`target` BETWEEN 1 AND 1000)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

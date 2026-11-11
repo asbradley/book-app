@@ -5,6 +5,7 @@ const db = require("../database/db");
 
 // Removes all rows so each test starts from an empty database
 async function resetDb() {
+  await db.query("DELETE FROM reading_goals");
   await db.query("DELETE FROM user_books");
   await db.query("DELETE FROM users");
 }
