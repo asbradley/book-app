@@ -1,6 +1,3 @@
-import { useState } from "react";
-import BookList from "./BookList";
-
 export default function ProfileTabs({ activeTab, onTabChange }) {
   return (
     <div className="flex justify-center mt-6 space-x-4 text-gray-500">

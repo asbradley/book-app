@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../../models/User");
 const axios = require("axios")
 const KEY = process.env.GOOGLE_BOOKS_API_KEY;
 const db = require("../../database/db")
