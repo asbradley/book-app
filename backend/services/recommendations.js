@@ -6,8 +6,8 @@
 //   2. Look each suggestion up on Google Books. Suggestions that can't be found
 //      are dropped, which filters out hallucinated books, and the rest get real
 //      IDs, covers, descriptions and links the UI can render.
-//   3. Cache the result per user, keyed on their current book list, so repeat
-//      visits don't cost an OpenAI call and adding a book invalidates it.
+//   3. Cache the result per user, keyed on their current shelves and ratings,
+//      so repeat visits don't cost an OpenAI call and any change invalidates it.
 
 const axios = require("axios");
 
@@ -58,11 +58,24 @@ const RESPONSE_FORMAT = {
 // instances; swap it for Redis if the backend is ever scaled horizontally.
 const cache = new Map();
 
+const STATUS_LABELS = {
+  read: "read",
+  reading: "currently reading",
+  want_to_read: "want to read",
+};
+
+// Formats one saved book for the prompt, e.g.
+// "- Dune by Frank Herbert [read, rated 5/5]"
+function describeBook(book) {
+  const tags = [STATUS_LABELS[book.status] || "read"];
+  if (book.rating) tags.push(`rated ${book.rating}/5`);
+  const byline = book.author ? ` by ${book.author}` : "";
+  return `- ${book.title}${byline} [${tags.join(", ")}]`;
+}
+
 // Asks the model for suggestions based on the user's books.
 async function getAiSuggestions(books) {
-  const bookList = books
-    .map((b) => `- ${b.title}${b.author ? ` by ${b.author}` : ""}`)
-    .join("\n");
+  const bookList = books.map(describeBook).join("\n");
 
   const response = await axios.post(
     OPENAI_URL,
@@ -80,9 +93,12 @@ async function getAiSuggestions(books) {
         {
           role: "user",
           content:
-            `Here are the books I've read:\n${bookList}\n\n` +
-            `Recommend ${NUM_TO_REQUEST} books I haven't read. For each one, give a ` +
-            `one-sentence reason that connects it to specific books on my list.`,
+            `Here are the books on my shelves:\n${bookList}\n\n` +
+            `Ratings show how much I liked a book, so lean toward what I rated highly ` +
+            `and away from what I rated low. "Want to read" books show my interests, ` +
+            `but I haven't read them yet.\n\n` +
+            `Recommend ${NUM_TO_REQUEST} books that are not on my shelves. For each one, ` +
+            `give a one-sentence reason that connects it to specific books on my list.`,
         },
       ],
     },
@@ -157,10 +173,14 @@ async function findOnGoogleBooks({ title, author }) {
 }
 
 // Returns up to NUM_TO_RETURN recommendations for a user.
-// `books` are the user's rows from user_books ({ book_id, title, author }).
+// `books` are the user's rows from user_books ({ book_id, title, author, status, rating }).
 // Pass { refresh: true } to skip the cache and get a fresh set.
 async function getRecommendations(userId, books, { refresh = false } = {}) {
-  const cacheKey = books.map((b) => b.book_id).sort().join(",");
+  // Shelf and rating are part of the key, since changing them changes the prompt
+  const cacheKey = books
+    .map((b) => `${b.book_id}:${b.status}:${b.rating ?? ""}`)
+    .sort()
+    .join(",");
   const cached = cache.get(userId);
   if (!refresh && cached && cached.key === cacheKey) {
     return cached.recommendations;

@@ -4,8 +4,7 @@ import ProfileHeader from './ProfileHeader';
 import ProfileTabs from './ProfileTabs';
 import BookList from './BookList';
 import Recommendations from './Recommendations';
-
-// You could import ReviewList, ShelfList when you create them
+import ReviewList from './ReviewList';
 
 export default function ProfilePage({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('Books');
@@ -21,7 +20,7 @@ export default function ProfilePage({ user, onLogout }) {
       
       <div className="mt-6">
         {activeTab === 'Books' && <BookList userId={user.id}/>}
-        {activeTab === 'Reviews' && <div>Reviews coming soon...</div>}
+        {activeTab === 'Reviews' && <ReviewList userId={user.id} />}
         {activeTab === 'Recommendations' && <Recommendations userId={user.id} />}
       </div>
     </div>
