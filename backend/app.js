@@ -10,6 +10,8 @@ const genreBookRoutes = require("./routes/genreBooks");
 const authRoutes = require("./routes/auth")
 const historyRoute = require("./routes/history");
 const userRoutes = require("./routes/account");
+const readerRoutes = require("./routes/readers");
+const feedRoutes = require("./routes/feed");
 const { searchLimiter } = require("./middleware/rateLimits");
 
 const app = express();
@@ -40,6 +42,8 @@ app.use("/api/genre", searchLimiter, genreBookRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/history", historyRoute);
+app.use("/api/readers", readerRoutes);
+app.use("/api/feed", feedRoutes);
 
 
 // Basic check

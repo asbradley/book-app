@@ -6,6 +6,7 @@ import BookList from './BookList';
 import Recommendations from './Recommendations';
 import ReviewList from './ReviewList';
 import ReadingStats from './ReadingStats';
+import Feed from './Feed';
 
 export default function ProfilePage({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('Books');
@@ -23,6 +24,7 @@ export default function ProfilePage({ user, onLogout }) {
         {activeTab === 'Books' && <BookList userId={user.id}/>}
         {activeTab === 'Reviews' && <ReviewList userId={user.id} />}
         {activeTab === 'Stats' && <ReadingStats />}
+        {activeTab === 'Feed' && <Feed />}
         {activeTab === 'Recommendations' && <Recommendations userId={user.id} />}
       </div>
     </div>

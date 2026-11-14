@@ -39,9 +39,10 @@ const User = {
 
   // Update user info
 update: async (id, { username, email, password, oldPassword }) => {
-  // If changing password, verify old password first
-  if (password && oldPassword) {
-    const isValidPassword = await User.verifyPassword(id, oldPassword);
+  // Changing the password always requires the current one, so a leaked
+  // token alone can't be used to take over the account
+  if (password) {
+    const isValidPassword = oldPassword && (await User.verifyPassword(id, oldPassword));
     if (!isValidPassword) {
       throw new Error('Current password is incorrect');
     }

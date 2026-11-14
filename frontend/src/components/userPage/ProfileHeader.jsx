@@ -36,6 +36,13 @@ export default function ProfileHeader({ user, onLogout }) {
           Logout
         </button>
       </div>
+      {/* How other readers see this profile */}
+      <Link
+        to={`/readers/${encodeURIComponent(user.username)}`}
+        className="inline-block mt-3 text-sm text-blue-600 hover:underline"
+      >
+        View public profile
+      </Link>
     </div>
   );
 }

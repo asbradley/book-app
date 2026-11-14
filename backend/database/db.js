@@ -11,6 +11,17 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
+    // Timestamps are exchanged in UTC (see below), so tell mysql2 to read and
+    // write JS Dates as UTC too
+    timezone: 'Z',
+});
+
+// Use UTC for every connection. TIMESTAMP columns are stored in UTC but read
+// back in the session's time zone, and mysql2 can't know which zone that is.
+// Without this, a database server in a different zone from the Node server
+// (common once hosted) shifts every date by the difference between them.
+pool.pool.on('connection', (connection) => {
+    connection.query("SET time_zone = '+00:00'");
 });
 
 module.exports = pool;
