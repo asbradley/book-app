@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const pool = require("../../database/db");
 const { authenticateToken } = require("../../middleware/authMiddleware"); // Import middleware
+const { loginLimiter, registerLimiter } = require("../../middleware/rateLimits");
 
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,7 +17,7 @@ const validateUsername = (username) => {
 };
 
 // Register route
-router.post("/register", async (req, res) => {
+router.post("/register", registerLimiter, async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
@@ -104,7 +105,7 @@ router.post("/register", async (req, res) => {
 });
 
 // Login route - expects email and password
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 

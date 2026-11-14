@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require("../../database/db")
 const { searchBooks } = require("../../utils/googleBooks");
 const { authenticateToken } = require("../../middleware/authMiddleware");
+const { searchLimiter, recommendationsLimiter } = require("../../middleware/rateLimits");
 const { getRecommendations } = require("../../services/recommendations");
 
 // Every history route is user-specific, so require a valid JWT for all of them.
@@ -24,7 +25,7 @@ async function getUserBook(userId, bookId) {
 }
 
 // Get the frontend API request for the user profile history section.
-router.get("/user-search", async (req, res) => {
+router.get("/user-search", searchLimiter, async (req, res) => {
   const que = req.query.q;
 
   // Validate query and its length
@@ -291,7 +292,7 @@ router.put("/goal", async (req, res) => {
 // Route to get AI book recommendations based on the user's history.
 // Returns { recommendations: [{ id, title, author, coverImage, description, link, reason }] }.
 // Results are cached per user; pass ?refresh=true to generate a new set.
-router.get("/recommendations", async (req, res) => {
+router.get("/recommendations", recommendationsLimiter, async (req, res) => {
   const user_id = req.user.userId;
   const refresh = req.query.refresh === "true";
 

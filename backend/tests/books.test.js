@@ -2,6 +2,7 @@
 // these routes don't touch the database.
 jest.mock("axios");
 const axios = require("axios");
+const { clearCache } = require("../utils/googleBooks");
 const { app, db, request } = require("./helpers");
 
 afterAll(() => db.end());
@@ -20,6 +21,7 @@ const volume = (id, title, extra = {}) => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
+  clearCache(); // each test sets up its own Google Books responses
   axios.get.mockResolvedValue({ data: { items: [volume("v1", "Dune")] } });
 });
 
@@ -117,5 +119,54 @@ describe("GET /api/genre/:genre", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual([]);
+  });
+});
+
+describe("Google Books caching", () => {
+  it("serves a repeated search from the cache", async () => {
+    await request(app).get("/api/books/search").query({ q: "dune" });
+    const res = await request(app).get("/api/books/search").query({ q: "dune" });
+
+    expect(res.status).toBe(200);
+    expect(res.body[0].title).toBe("Dune");
+    expect(axios.get).toHaveBeenCalledTimes(1);
+  });
+
+  it("caches each query separately", async () => {
+    await request(app).get("/api/books/search").query({ q: "dune" });
+    await request(app).get("/api/books/search").query({ q: "emma" });
+
+    expect(axios.get).toHaveBeenCalledTimes(2);
+  });
+
+  it("shares one API call between identical requests made at the same time", async () => {
+    await Promise.all([
+      request(app).get("/api/genre/Fantasy"),
+      request(app).get("/api/genre/Fantasy"),
+    ]);
+
+    expect(axios.get).toHaveBeenCalledTimes(1);
+  });
+
+  it("doesn't cache failures, so the next request retries", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    axios.get.mockRejectedValueOnce(new Error("network down"));
+
+    expect((await request(app).get("/api/books/search").query({ q: "dune" })).status).toBe(500);
+    expect((await request(app).get("/api/books/search").query({ q: "dune" })).status).toBe(200);
+    expect(axios.get).toHaveBeenCalledTimes(2);
+    console.error.mockRestore();
+  });
+
+  it("expires entries after 30 minutes", async () => {
+    const now = jest.spyOn(Date, "now");
+    now.mockReturnValue(1_000_000);
+    await request(app).get("/api/books/search").query({ q: "dune" });
+
+    now.mockReturnValue(1_000_000 + 31 * 60 * 1000);
+    await request(app).get("/api/books/search").query({ q: "dune" });
+
+    expect(axios.get).toHaveBeenCalledTimes(2);
+    now.mockRestore();
   });
 });

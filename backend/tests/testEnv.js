@@ -15,6 +15,8 @@ const testEnv = {
   JWT_SECRET_KEY: "test-jwt-secret",
   OPEN_AI_KEY: "test-openai-key",
   GOOGLE_BOOKS_API_KEY: "test-google-key",
+  // Tests make many requests from one IP; rateLimits.test.js turns them back on
+  DISABLE_RATE_LIMITS: "true",
 };
 
 function applyTestEnv() {
