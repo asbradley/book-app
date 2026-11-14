@@ -7,7 +7,7 @@ import StarRating from "../userPage/StarRating";
 import { SHELVES } from "../userPage/shelves";
 import BookCover from "./BookCover";
 import FollowList from "./FollowList";
-import blankAvatar from "../../assets/blank-profile.png";
+import Avatar from "../common/Avatar";
 import { monthYear } from "../../utils/time";
 
 const shelfLabel = (value) => SHELVES.find((s) => s.value === value)?.label;
@@ -15,7 +15,7 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 // Public profile at /readers/:username: who they are, their follower counts,
 // a Follow button, and (unless private) their shelves and reviews.
-export default function ReaderProfile({ isLoggedin }) {
+export default function ReaderProfile({ isLoggedin, user }) {
   const { username } = useParams();
   const navigate = useNavigate();
   const [reader, setReader] = useState(null);
@@ -48,6 +48,7 @@ export default function ReaderProfile({ isLoggedin }) {
       {/* Searching from here goes to the home page results */}
       <BookshelfNavbar
         isLoggedin={isLoggedin}
+        avatarUrl={user?.avatarUrl}
         onSearch={(q) => navigate(q ? `/?q=${encodeURIComponent(q)}` : "/")}
       />
 
@@ -98,7 +99,7 @@ function ReaderHeader({ reader, isLoggedin, onFollowChange, openList, onOpenList
 
   return (
     <div className="text-center mt-6">
-      <img src={blankAvatar} alt="" className="w-24 h-24 rounded-full mx-auto" />
+      <Avatar src={reader.avatarUrl} className="w-24 h-24 mx-auto block" />
       <h1 className="text-xl font-semibold mt-2 flex items-center justify-center gap-1">
         {reader.username}
         {reader.isPrivate && <Lock className="w-4 h-4 text-gray-400" aria-label="Private profile" />}

@@ -43,7 +43,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage isLoggedin={isLoggedin} />} />
+        <Route path="/" element={<MainPage isLoggedin={isLoggedin} user={user} />} />
         <Route
           path="/login"
           element={
@@ -56,7 +56,7 @@ export default function App() {
             <CreateAccount setisLoggedin={setisLoggedin} setUser={setUser} />
           }
         />
-        <Route path="/readers/:username" element={<ReaderProfile isLoggedin={isLoggedin} />} />
+        <Route path="/readers/:username" element={<ReaderProfile isLoggedin={isLoggedin} user={user} />} />
         <Route path="/profile" element={<ProfilePage user={user} onLogout={handleLogout} />} />
 
         <Route

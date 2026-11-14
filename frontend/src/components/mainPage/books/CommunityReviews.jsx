@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { Star } from "lucide-react";
 import StarRating from "../../userPage/StarRating";
+import Avatar from "../../common/Avatar";
 import { timeAgo } from "../../../utils/time";
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
@@ -58,8 +59,9 @@ export default function CommunityReviews({ bookId }) {
                   <div className="flex items-center gap-2 flex-wrap">
                     <Link
                       to={`/readers/${encodeURIComponent(review.username)}`}
-                      className="font-semibold hover:underline"
+                      className="font-semibold hover:underline inline-flex items-center gap-1.5"
                     >
+                      <Avatar src={review.avatarUrl} className="w-6 h-6" />
                       {review.username}
                     </Link>
                     {review.rating && (

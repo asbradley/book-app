@@ -1,9 +1,8 @@
-import image from "../../assets/blank-profile.png";
+import Avatar from "../common/Avatar";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 export default function ProfileHeader({ user, onLogout }) {
-  const avatar = user?.image || image;
   const navigate = useNavigate();
 
   // Conditional return: Render nothing or a loading message if user is not available
@@ -19,11 +18,7 @@ export default function ProfileHeader({ user, onLogout }) {
 
   return (
     <div className="text-center">
-      <img
-        src={avatar}
-        alt="Profile"
-        className="w-24 h-24 rounded-full mx-auto"
-      />
+      <Avatar src={user.avatarUrl} alt="Your profile picture" className="w-24 h-24 mx-auto block" />
       <h2 className="text-xl font-semibold mt-2">{user.username}</h2>
       <p className="text-gray-500">{user.email}</p>
       <div className="mt-4 space-x-2">

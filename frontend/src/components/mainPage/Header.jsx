@@ -3,11 +3,12 @@ import { BookOpen, Search, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import NeedAccount from "./NeedAccountPage";
 import profileImage from "../../assets/blank-profile.png";
-import userProfileImage from "../../assets/Girl_Reading.png"
+import Avatar from "../common/Avatar";
 
+// `avatarUrl` is the logged-in user's picture (null for the default).
 // `searchQuery` is the active search (from the URL); `onSearch` is called with
 // the new query when the user submits, or "" when they clear it.
-export default function BookshelfNavbar({ isLoggedin, searchQuery = "", onSearch }) {
+export default function BookshelfNavbar({ isLoggedin, avatarUrl, searchQuery = "", onSearch }) {
   const [input, setInput] = useState(searchQuery);
   const [showPopup, setshowPopup] = useState(false);
 
@@ -64,15 +65,8 @@ export default function BookshelfNavbar({ isLoggedin, searchQuery = "", onSearch
         {isLoggedin ? (
           <>
             {/* User is Logged in */}
-            <Link
-              to="/profile"
-              className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden cursor-pointer"
-            >
-              <img
-                src={userProfileImage} // Make sure this is a valid image URL or a prop
-                alt="User Avatar"
-                className="h-full w-full object-cover"
-              />
+            <Link to="/profile" aria-label="Your profile" className="rounded-full">
+              <Avatar src={avatarUrl} className="h-10 w-10" />
             </Link>
           </>
         ) : (

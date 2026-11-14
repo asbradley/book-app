@@ -2,17 +2,19 @@
 //
 //   GET    /api/readers/search?q=        find readers by username
 //   GET    /api/readers/:username        profile, counts and (if visible) books
+//   GET    /api/readers/:username/avatar profile picture (WebP)
 //   GET    /api/readers/:username/followers | /following
 //   POST   /api/readers/:username/follow   (login required)
 //   DELETE /api/readers/:username/follow   (login required)
 //
-// Private profiles show only their username, join date and follower counts to
+// Private profiles show only their username, picture, join date and follower counts to
 // other users; their books, reviews and follow lists are visible only to them.
 
 const express = require("express");
 const db = require("../../database/db");
 const { authenticateToken, optionalAuth } = require("../../middleware/authMiddleware");
 const { searchLimiter } = require("../../middleware/rateLimits");
+const { avatarUrl } = require("../../utils/avatars");
 
 const router = express.Router();
 
@@ -23,7 +25,7 @@ const FOLLOW_LIST_LIMIT = 100;
 
 async function findReader(username) {
   const [rows] = await db.execute(
-    "SELECT id, username, is_private, created_at FROM users WHERE username = ?",
+    "SELECT id, username, is_private, avatar_updated_at, created_at FROM users WHERE username = ?",
     [username]
   );
   return rows[0];
@@ -92,6 +94,7 @@ router.get("/:username", optionalAuth, async (req, res) => {
 
     res.json({
       username: reader.username,
+      avatarUrl: avatarUrl(reader.username, reader.avatar_updated_at),
       joinedAt: reader.created_at,
       isPrivate: Boolean(reader.is_private),
       isSelf: viewerId === reader.id,
@@ -103,6 +106,27 @@ router.get("/:username", optionalAuth, async (req, res) => {
   } catch (error) {
     console.error("Error loading reader:", error);
     res.status(500).json({ message: "Failed to load reader" });
+  }
+});
+
+// Profile picture. Public even for private profiles, like the username.
+// Links from avatarUrl() carry a ?v= version, so those responses can be cached
+// for good; a new upload gets a new URL.
+router.get("/:username/avatar", async (req, res) => {
+  try {
+    const [rows] = await db.execute("SELECT avatar FROM users WHERE username = ?", [req.params.username]);
+    const avatar = rows[0]?.avatar;
+    if (!avatar) return res.status(404).json({ message: "No profile picture" });
+
+    res.set({
+      "Content-Type": "image/webp",
+      "X-Content-Type-Options": "nosniff",
+      "Cache-Control": req.query.v ? "public, max-age=31536000, immutable" : "public, max-age=300",
+    });
+    res.send(avatar);
+  } catch (error) {
+    console.error("Error loading avatar:", error);
+    res.status(500).json({ message: "Failed to load profile picture" });
   }
 });
 

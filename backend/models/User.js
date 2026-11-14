@@ -1,11 +1,17 @@
 const pool = require('../database/db'); // Import the database connection pool
 const bcrypt = require('bcryptjs'); // Use bcryptjs for consistency
+const { avatarUrl } = require('../utils/avatars');
 
 const User = {
   // Find user by ID
   findById: async (id) => {
-    const [rows] = await pool.query('SELECT id, username, email FROM users WHERE id = ?', [id]);
-    return rows[0]; // Return the first user found
+    const [rows] = await pool.query(
+      'SELECT id, username, email, avatar_updated_at FROM users WHERE id = ?',
+      [id]
+    );
+    if (!rows[0]) return undefined;
+    const { avatar_updated_at, ...user } = rows[0];
+    return { ...user, avatarUrl: avatarUrl(user.username, avatar_updated_at) };
   },
 
 

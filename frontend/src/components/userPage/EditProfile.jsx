@@ -1,14 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import image from "../../assets/blank-profile.png";
 import axios from "axios";
 import PrivacySetting from "./PrivacySetting";
+import AvatarUploader from "./AvatarUploader";
 
 
 
 export default function EditProfile({ user, onSave }) {
-  // Profile picture uploads aren't supported yet, so this only displays
-  const avatar = user?.image || image;
+
+  // The picture saves on its own (no password needed), so update the stored
+  // user straight away
+  const handleAvatarChange = (avatarUrl) => {
+    const updatedUser = { ...user, avatarUrl };
+    onSave(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
   const [oldPassword, setOldPassword] = useState("");
@@ -72,11 +78,8 @@ export default function EditProfile({ user, onSave }) {
       <h2 className="text-2xl font-semibold mb-4 text-center">Edit Profile</h2>
       <form onSubmit={handleSubmit} className="flex space-x-6">
         {/* Left side: Avatar */}
-        <div className="flex-shrink-0 flex flex-col items-center space-y-3">
-          <img src={avatar} alt="Profile" className="w-24 h-24 rounded-full" />
-          <button className="text-sm bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700 transition" type="button">
-            Edit Avatar
-          </button>
+        <div className="flex-shrink-0">
+          {user && <AvatarUploader user={user} onChange={handleAvatarChange} />}
         </div>
 
         {/* Right side: Input fields */}

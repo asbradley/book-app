@@ -1,6 +1,7 @@
 const express = require("express");
 const { searchBooks } = require("../utils/googleBooks");
 const db = require("../database/db");
+const { avatarUrl } = require("../utils/avatars");
 
 const router = express.Router();
 
@@ -72,7 +73,7 @@ router.get("/:bookId/reviews", async (req, res) => {
         [bookId]
       ),
       db.execute(
-        `SELECT u.username, ub.rating, ub.review, ub.updated_at
+        `SELECT u.username, u.avatar_updated_at, ub.rating, ub.review, ub.updated_at
          ${publicReaders} AND ub.review IS NOT NULL
          ORDER BY ub.updated_at DESC
          LIMIT ${MAX_REVIEWS}`,
@@ -85,7 +86,10 @@ router.get("/:bookId/reviews", async (req, res) => {
       ratingCount: summary.ratingCount,
       // AVG comes back as a decimal string; round to one place
       averageRating: summary.averageRating === null ? null : Math.round(summary.averageRating * 10) / 10,
-      reviews,
+      reviews: reviews.map(({ avatar_updated_at, ...review }) => ({
+        ...review,
+        avatarUrl: avatarUrl(review.username, avatar_updated_at),
+      })),
     });
   } catch (error) {
     console.error("Error loading book reviews:", error);

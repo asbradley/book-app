@@ -13,6 +13,7 @@
 const express = require("express");
 const db = require("../../database/db");
 const { authenticateToken } = require("../../middleware/authMiddleware");
+const { avatarUrl } = require("../../utils/avatars");
 
 const router = express.Router();
 const PAGE_SIZE = 20;
@@ -42,7 +43,7 @@ router.get("/", authenticateToken, async (req, res) => {
 
     // One extra row tells us whether there's another page
     const [rows] = await db.execute(
-      `SELECT ub.id, u.username, ub.book_id, ub.title, ub.author, ub.cover_image,
+      `SELECT ub.id, u.username, u.avatar_updated_at, ub.book_id, ub.title, ub.author, ub.cover_image,
               ub.status, ub.rating, ub.review, ub.updated_at AS activity_at
          FROM follows f
          JOIN users u ON u.id = f.following_id AND u.is_private = FALSE
@@ -56,7 +57,10 @@ router.get("/", authenticateToken, async (req, res) => {
     const hasMore = rows.length > PAGE_SIZE;
     const items = rows.slice(0, PAGE_SIZE);
     res.json({
-      items: items.map(({ id, ...item }) => item),
+      items: items.map(({ id, avatar_updated_at, ...item }) => ({
+        ...item,
+        avatarUrl: avatarUrl(item.username, avatar_updated_at),
+      })),
       nextCursor: hasMore ? encodeCursor(items[items.length - 1]) : null,
     });
   } catch (error) {

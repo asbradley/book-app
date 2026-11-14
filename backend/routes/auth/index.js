@@ -6,6 +6,7 @@ const pool = require("../../database/db");
 const { authenticateToken } = require("../../middleware/authMiddleware"); // Import middleware
 const { loginLimiter, registerLimiter } = require("../../middleware/rateLimits");
 const { validateEmail, validateUsername, MIN_PASSWORD_LENGTH } = require("../../utils/validation");
+const { avatarUrl } = require("../../utils/avatars");
 
 
 // Register route
@@ -86,6 +87,7 @@ router.post("/register", registerLimiter, async (req, res) => {
         id: result.insertId,
         username: username,
         email: email,
+        avatarUrl: null,
       },
     });
   } catch (error) {
@@ -109,7 +111,7 @@ router.post("/login", loginLimiter, async (req, res) => {
 
     const connection = await pool.getConnection();
     const [users] = await connection.execute(
-      "SELECT id, username, email, password FROM users WHERE email = ?",
+      "SELECT id, username, email, password, avatar_updated_at FROM users WHERE email = ?",
       [email]
     );
     connection.release();
@@ -146,6 +148,7 @@ router.post("/login", loginLimiter, async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        avatarUrl: avatarUrl(user.username, user.avatar_updated_at),
       },
     });
   } catch (error) {
