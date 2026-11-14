@@ -66,9 +66,7 @@ jobs:
       - run: npm test -- --watchAll=false
         env:
           CI: true
-      # CI=true would turn lint warnings into build errors. The remaining
-      # warnings are placeholder footer links and an unused avatar setter;
-      # switch this to true once those are cleaned up.
+      # CI=true makes lint warnings fail the build, so new ones get fixed
       - run: npm run build
         env:
-          CI: false
+          CI: true

@@ -94,3 +94,57 @@ test("logged-out users are prompted to log in instead", async () => {
   expect(screen.getByRole("link", { name: /log in to add this book/i })).toHaveAttribute("href", "/login");
   expect(screen.queryByRole("button", { name: "Add to shelf" })).not.toBeInTheDocument();
 });
+
+describe("genres", () => {
+  beforeEach(() => {
+    axios.get.mockImplementation(async (url) => {
+      if (url.startsWith("/api/genre/")) {
+        const genre = decodeURIComponent(url.slice("/api/genre/".length));
+        return { data: [{ id: "g1", title: `A ${genre} book`, author: "B", genre }] };
+      }
+      if (url.startsWith("/api/books/search")) return { data: [dune] };
+      return { data: [homeBook] };
+    });
+  });
+
+  test("picking a genre in the sidebar shows its books and hides the banner", async () => {
+    renderPage();
+    await screen.findByText("Home Page Book");
+
+    await act(async () => {
+      await userEvent.click(screen.getByRole("radio", { name: "Mystery" }));
+    });
+
+    expect(await screen.findByText("A Mystery book")).toBeInTheDocument();
+    expect(screen.queryByText("Travel to another world")).not.toBeInTheDocument();
+  });
+
+  test("the banner's button opens Science Fiction and selects it in the sidebar", async () => {
+    renderPage();
+
+    await act(async () => {
+      await userEvent.click(screen.getByRole("button", { name: "Explore science fiction" }));
+    });
+
+    expect(await screen.findByText("A Science Fiction book")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Science Fiction" })).toBeChecked();
+  });
+
+  test("loads a genre straight from a shared ?genre= link", async () => {
+    renderPage({ url: "/?genre=Horror" });
+
+    expect(await screen.findByText("A Horror book")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Horror" })).toBeChecked();
+  });
+
+  test("searching leaves the genre, and no genre stays selected", async () => {
+    renderPage({ url: "/?genre=Horror" });
+    await screen.findByText("A Horror book");
+
+    await search("dune");
+
+    expect(await screen.findByText('Results for "dune"')).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Horror" })).not.toBeChecked();
+    expect(screen.getByRole("radio", { name: "None" })).not.toBeChecked();
+  });
+});

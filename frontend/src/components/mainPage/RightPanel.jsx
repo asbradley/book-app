@@ -4,7 +4,7 @@ import BookResults from "./books/BookResults";
 
 // Main content area: search results when searching, otherwise the selected
 // genre, otherwise the home page sections.
-export default function RightPanel({ selectedGenre, searchQuery, isLoggedin }) {
+export default function RightPanel({ selectedGenre, searchQuery, isLoggedin, onGenreSelect }) {
   let content;
   if (searchQuery) {
     content = (
@@ -31,8 +31,10 @@ export default function RightPanel({ selectedGenre, searchQuery, isLoggedin }) {
   return (
     <div className="flex-1 py-6 px-8 overflow-y-auto">
       <div className="max-w-5xl mx-auto w-full">
-        {/* Skip the banner while searching so results are visible right away */}
-        {!searchQuery && <BookBanner />}
+        {/* Only on the home view, so search and genre results show right away */}
+        {!searchQuery && selectedGenre === "None" && (
+          <BookBanner onExplore={() => onGenreSelect("Science Fiction")} />
+        )}
         {content}
       </div>
     </div>
