@@ -4,7 +4,7 @@ import RightPanel from "./RightPanel";
 import Footer from "./Footer";
 import { useSearchParams } from "react-router-dom";
 
-export default function MainPage({ isLoggedin }) {
+export default function MainPage({ isLoggedin, user }) {
   // The search and genre live in the URL (/?q=dune, /?genre=Fantasy) so a view
   // can be shared or bookmarked and the back button returns to the previous
   // one. Only one is active at a time: searching leaves the genre and vice versa.
@@ -24,6 +24,7 @@ export default function MainPage({ isLoggedin }) {
     <div className="flex flex-col min-h-screen">
       <BookshelfNavbar
         isLoggedin={isLoggedin}
+        avatarUrl={user?.avatarUrl}
         searchQuery={searchQuery}
         onSearch={handleSearch}
       />

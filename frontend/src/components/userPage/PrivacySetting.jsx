@@ -34,7 +34,7 @@ export default function PrivacySetting({ user }) {
             Private profile
           </h3>
           <p className="text-sm text-gray-500 mt-1">
-            Only you can see your shelves, reviews and followers. Your username stays visible.
+            Only you can see your shelves, reviews and followers. Your username and picture stay visible.
           </p>
         </div>
         <button

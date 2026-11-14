@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `is_private` boolean NOT NULL DEFAULT FALSE, -- hides shelves/reviews/activity from others
+  `avatar` mediumblob, -- profile picture, resized to a small WebP by the API
+  `avatar_updated_at` timestamp(3) NULL DEFAULT NULL, -- versions the avatar URL for caching
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),

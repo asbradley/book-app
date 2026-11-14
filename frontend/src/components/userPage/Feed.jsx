@@ -4,6 +4,7 @@ import axios from "axios";
 import StarRating from "./StarRating";
 import BookCover from "../readers/BookCover";
 import ReaderSearch from "../readers/ReaderSearch";
+import Avatar from "../common/Avatar";
 import { timeAgo } from "../../utils/time";
 
 // What a feed item says the reader did, from the book's current shelf
@@ -62,8 +63,9 @@ export default function Feed() {
               <p>
                 <Link
                   to={`/readers/${encodeURIComponent(item.username)}`}
-                  className="font-semibold hover:underline"
+                  className="font-semibold hover:underline inline-flex items-center gap-1.5 align-middle"
                 >
+                  <Avatar src={item.avatarUrl} className="w-5 h-5" />
                   {item.username}
                 </Link>{" "}
                 <span className="text-gray-600">{ACTIONS[item.status]}</span>{" "}
