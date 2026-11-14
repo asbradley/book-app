@@ -1,14 +1,16 @@
 import { Link } from "react-router-dom";
 import AddToShelf from "./AddToShelf";
+import CommunityReviews from "./CommunityReviews";
 
 // Book detail popup. Logged-in users can add the book to a shelf from here.
 export default function BookModal({ book, onClose, isLoggedin = false }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 px-4">
-      <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-6 relative">
+      <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
         {/* Close button */}
         <button
           onClick={onClose}
+          aria-label="Close"
           className="absolute top-3 right-3 text-gray-500 hover:text-black text-2xl font-bold"
         >
           &times;
@@ -54,6 +56,8 @@ export default function BookModal({ book, onClose, isLoggedin = false }) {
                 </a>
               )}
             </div>
+
+            <CommunityReviews bookId={book.id} />
           </div>
         </div>
       </div>

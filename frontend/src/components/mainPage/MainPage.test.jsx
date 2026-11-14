@@ -7,6 +7,7 @@ import MainPage from "./MainPage";
 
 jest.mock("axios", () => ({ get: jest.fn(), post: jest.fn() }));
 
+const noReviews = { readerCount: 0, ratingCount: 0, averageRating: null, reviews: [] };
 const homeBook = { id: "home1", title: "Home Page Book", author: "A", genre: "Fantasy" };
 const dune = {
   id: "dune",
@@ -20,6 +21,7 @@ const dune = {
 beforeEach(() => {
   jest.clearAllMocks();
   axios.get.mockImplementation(async (url) => {
+    if (url.endsWith("/reviews")) return { data: noReviews };
     if (url.startsWith("/api/books/search")) return { data: [dune] };
     return { data: [homeBook] }; // home page sections
   });
@@ -102,7 +104,8 @@ describe("genres", () => {
         const genre = decodeURIComponent(url.slice("/api/genre/".length));
         return { data: [{ id: "g1", title: `A ${genre} book`, author: "B", genre }] };
       }
-      if (url.startsWith("/api/books/search")) return { data: [dune] };
+      if (url.endsWith("/reviews")) return { data: noReviews };
+    if (url.startsWith("/api/books/search")) return { data: [dune] };
       return { data: [homeBook] };
     });
   });
