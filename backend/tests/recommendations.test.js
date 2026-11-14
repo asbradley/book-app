@@ -2,6 +2,7 @@
 // no cost); the database and routes are real.
 jest.mock("axios");
 const axios = require("axios");
+const { clearCache } = require("../utils/googleBooks");
 const { app, db, request, resetDb, createUser, addBook } = require("./helpers");
 
 beforeEach(resetDb);
@@ -60,6 +61,7 @@ function mockOpenAi(recommendations) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  clearCache(); // each test sets up its own Google Books responses
   mockOpenAi(suggestions);
   axios.get.mockImplementation(async (_url, { params }) => {
     const title = params.q.match(/intitle:(.*) inauthor:/)[1];
