@@ -6,7 +6,8 @@ import axios from "axios";
 
 
 export default function EditProfile({ user, onSave }) {
-  const [avatar, setAvatar] = useState(user?.image || image);
+  // Profile picture uploads aren't supported yet, so this only displays
+  const avatar = user?.image || image;
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
   const [oldPassword, setOldPassword] = useState("");
