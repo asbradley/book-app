@@ -126,6 +126,59 @@ describe("PUT /api/users/:id", () => {
 
     expect(res.status).toBe(400);
   });
+
+  it("refuses to change the password without the current one", async () => {
+    const { token, user, password } = await createUser();
+
+    const res = await request(app)
+      .put(`/api/users/${user.id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ username: user.username, email: user.email, password: "takeover123" });
+
+    expect(res.status).toBe(400);
+    // The original password still works
+    const login = await request(app).post("/api/auth/login").send({ email: user.email, password });
+    expect(login.status).toBe(200);
+  });
+
+  it("changes the password when the current one is given", async () => {
+    const { token, user, password } = await createUser();
+
+    await request(app)
+      .put(`/api/users/${user.id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ username: user.username, email: user.email, password: "newpass123", oldPassword: password });
+
+    const login = await request(app).post("/api/auth/login").send({ email: user.email, password: "newpass123" });
+    expect(login.status).toBe(200);
+  });
+
+  it.each([
+    ["an invalid username", { username: "has spaces" }],
+    ["an invalid email", { email: "not-an-email" }],
+    ["a short new password", { password: "abc", oldPassword: "password123" }],
+  ])("rejects %s", async (_case, changes) => {
+    const { token, user } = await createUser();
+
+    const res = await request(app)
+      .put(`/api/users/${user.id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ username: user.username, email: user.email, ...changes });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 409 when the new username is taken", async () => {
+    const alice = await createUser();
+    const bob = await createUser();
+
+    const res = await request(app)
+      .put(`/api/users/${bob.user.id}`)
+      .set("Authorization", `Bearer ${bob.token}`)
+      .send({ username: alice.user.username, email: bob.user.email });
+
+    expect(res.status).toBe(409);
+  });
 });
 
 describe("GET /api/health", () => {

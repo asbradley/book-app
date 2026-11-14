@@ -5,16 +5,8 @@ const jwt = require("jsonwebtoken");
 const pool = require("../../database/db");
 const { authenticateToken } = require("../../middleware/authMiddleware"); // Import middleware
 const { loginLimiter, registerLimiter } = require("../../middleware/rateLimits");
+const { validateEmail, validateUsername, MIN_PASSWORD_LENGTH } = require("../../utils/validation");
 
-const validateEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-const validateUsername = (username) => {
-  const usernameRegex = /^[a-zA-Z0-9_]+$/;
-  return usernameRegex.test(username) && username.length >= 3;
-};
 
 // Register route
 router.post("/register", registerLimiter, async (req, res) => {
@@ -32,7 +24,7 @@ router.post("/register", registerLimiter, async (req, res) => {
     if (!validateUsername(username)) {
       return res.status(400).json({
         message:
-          "Username must be at least 3 characters long and contain only letters, numbers, and underscores",
+          "Username must be 3-30 characters and contain only letters, numbers, and underscores",
       });
     }
 
@@ -44,7 +36,7 @@ router.post("/register", registerLimiter, async (req, res) => {
     }
 
     // Validating password length
-    if (password.length < 6) {
+    if (password.length < MIN_PASSWORD_LENGTH) {
       return res.status(400).json({
         message: "Password must be at least 6 characters long",
       });
