@@ -17,4 +17,17 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-module.exports = { authenticateToken };
+// For routes that work logged out but show more when logged in: sets req.user
+// when a valid token is sent, and otherwise carries on as an anonymous visitor
+// (an expired or invalid token is treated the same as no token).
+const optionalAuth = (req, res, next) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) return next();
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
+    if (!err) req.user = user;
+    next();
+  });
+};
+
+module.exports = { authenticateToken, optionalAuth };

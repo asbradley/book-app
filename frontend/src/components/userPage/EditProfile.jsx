@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import image from "../../assets/blank-profile.png";
 import axios from "axios";
+import PrivacySetting from "./PrivacySetting";
 
 
 
@@ -144,6 +145,7 @@ export default function EditProfile({ user, onSave }) {
         {error && <div className="mt-4 text-red-600">{error}</div>}
         {success && <div className="mt-4 text-green-600">{success}</div>}
       </div>
+      {user && <PrivacySetting user={user} />}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../../models/User");
+const pool = require("../../database/db");
 const { authenticateToken } = require("../../middleware/authMiddleware");
 const { validateEmail, validateUsername, MIN_PASSWORD_LENGTH } = require("../../utils/validation");
 
@@ -41,6 +42,25 @@ router.put("/:id", authenticateToken, async (req, res) => {
     }
     console.error("Error updating user:", err);
     res.status(500).json({ message: "Error updating user" });
+  }
+});
+
+// Make the logged-in user's profile private or public: { isPrivate: boolean }
+router.put("/:id/privacy", authenticateToken, async (req, res) => {
+  if (req.user.userId !== parseInt(req.params.id, 10)) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+  const { isPrivate } = req.body;
+  if (typeof isPrivate !== "boolean") {
+    return res.status(400).json({ message: "isPrivate must be true or false" });
+  }
+
+  try {
+    await pool.execute("UPDATE users SET is_private = ? WHERE id = ?", [isPrivate, req.user.userId]);
+    res.json({ isPrivate });
+  } catch (err) {
+    console.error("Error updating privacy:", err);
+    res.status(500).json({ message: "Failed to update privacy setting" });
   }
 });
 
