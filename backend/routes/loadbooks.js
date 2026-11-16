@@ -1,5 +1,5 @@
 const express = require("express");
-const { searchBooks } = require("../utils/googleBooks");
+const { searchBooks, getBook } = require("../utils/googleBooks");
 const db = require("../database/db");
 const { avatarUrl } = require("../utils/avatars");
 
@@ -47,6 +47,19 @@ router.get("/search", async (req, res) => {
   } catch (error) {
     console.error("Error searching books:", error.message);
     res.status(500).json({ error: "Failed to search books" });
+  }
+});
+
+// One book's details, for its page at /books/:bookId (no login required)
+// GET /api/books/:bookId
+router.get("/:bookId", async (req, res) => {
+  try {
+    const book = await getBook(req.params.bookId);
+    if (!book) return res.status(404).json({ message: "Book not found" });
+    res.json(book);
+  } catch (error) {
+    console.error("Error fetching book:", error.message);
+    res.status(502).json({ message: "Failed to load this book" });
   }
 });
 

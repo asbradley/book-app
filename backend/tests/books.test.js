@@ -1,5 +1,5 @@
-// Public book routes (home page, genre, search). Google Books is mocked;
-// these routes don't touch the database.
+// Public book routes (home page, genre, search, single book). Google Books is mocked;
+// apart from one routing check, these tests don't touch the database.
 jest.mock("axios");
 const axios = require("axios");
 const { clearCache } = require("../utils/googleBooks");
@@ -168,5 +168,70 @@ describe("Google Books caching", () => {
 
     expect(axios.get).toHaveBeenCalledTimes(2);
     now.mockRestore();
+  });
+});
+
+describe("GET /api/books/:bookId", () => {
+  const notFound = () => Object.assign(new Error("Not Found"), { response: { status: 404 } });
+
+  it("returns one book with extra details and its description as plain text", async () => {
+    axios.get.mockResolvedValue({
+      data: volume("duneVolume01", "Dune", {
+        authors: ["Frank Herbert", "Someone Else"],
+        description: "<p>A <b>desert</b> planet.</p><p>Spice &amp; sand.<br>The end.</p>",
+        publishedDate: "1965",
+        pageCount: 412,
+        categories: ["Fiction"],
+      }),
+    });
+
+    const res = await request(app).get("/api/books/duneVolume01");
+
+    expect(res.status).toBe(200);
+    expect(axios.get).toHaveBeenCalledWith(
+      "https://www.googleapis.com/books/v1/volumes/duneVolume01",
+      expect.anything()
+    );
+    expect(res.body).toMatchObject({
+      id: "duneVolume01",
+      title: "Dune",
+      author: "Frank Herbert",
+      authors: ["Frank Herbert", "Someone Else"],
+      description: "A desert planet.\n\nSpice & sand.\nThe end.",
+      publishedDate: "1965",
+      pageCount: 412,
+      categories: ["Fiction"],
+    });
+  });
+
+  it("returns 404 for an unknown book, and caches that answer", async () => {
+    axios.get.mockRejectedValue(notFound());
+
+    expect((await request(app).get("/api/books/missingBook1")).status).toBe(404);
+    expect((await request(app).get("/api/books/missingBook1")).status).toBe(404);
+    expect(axios.get).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects malformed IDs without calling Google", async () => {
+    for (const id of ["a1", "much-too-long-for-an-id", encodeURIComponent("bad id!!!!!!")]) {
+      expect((await request(app).get(`/api/books/${id}`)).status).toBe(404);
+    }
+    expect(axios.get).not.toHaveBeenCalled();
+  });
+
+  it("returns 502 when Google Books fails, and retries next time", async () => {
+    axios.get.mockRejectedValueOnce(new Error("boom"));
+    expect((await request(app).get("/api/books/duneVolume01")).status).toBe(502);
+
+    axios.get.mockResolvedValue({ data: volume("duneVolume01", "Dune") });
+    expect((await request(app).get("/api/books/duneVolume01")).status).toBe(200);
+  });
+
+  it("doesn't swallow the reviews route", async () => {
+    // /:bookId/reviews is a separate route that reads the database
+    const res = await request(app).get("/api/books/v1/reviews");
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("readerCount");
+    expect(axios.get).not.toHaveBeenCalled();
   });
 });

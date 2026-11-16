@@ -1,13 +1,12 @@
 import { Link } from "react-router-dom";
-import AddToShelf from "./AddToShelf";
-import CommunityReviews from "./CommunityReviews";
+import { ExternalLink } from "lucide-react";
+import BookDetails from "./BookDetails";
 
-// Book detail popup. Logged-in users can add the book to a shelf from here.
+// Book detail popup, with a link to the book's own page (which can be shared)
 export default function BookModal({ book, onClose, isLoggedin = false }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 px-4">
       <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
-        {/* Close button */}
         <button
           onClick={onClose}
           aria-label="Close"
@@ -16,50 +15,17 @@ export default function BookModal({ book, onClose, isLoggedin = false }) {
           &times;
         </button>
 
-        {/* Modal content layout */}
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Cover image on the left */}
-          <img
-            src={book.coverImage}
-            alt={book.title}
-            className="w-full md:w-48 h-64 object-cover rounded-md"
-          />
+        <BookDetails book={book} isLoggedin={isLoggedin} />
 
-          {/* Title and author on the right */}
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-800">{book.title}</h2>
-            <p className="text-md text-gray-600 mb-4">by {book.author}</p>
-
-            {/* Description below */}
-            <p className="text-gray-700 text-sm leading-relaxed">
-              {book.description || "No description available."}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 mt-4">
-              {isLoggedin ? (
-                <AddToShelf book={book} />
-              ) : (
-                <Link to="/login" className="text-sm text-blue-600 hover:underline">
-                  Log in to add this book to your shelves
-                </Link>
-              )}
-
-              {/* Link to book */}
-              {book.link && (
-                <a
-                  href={book.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                >
-                  Learn More
-                </a>
-              )}
-            </div>
-
-            <CommunityReviews bookId={book.id} />
-          </div>
-        </div>
+        {book.id && (
+          <Link
+            to={`/books/${encodeURIComponent(book.id)}`}
+            className="mt-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-black hover:underline"
+          >
+            <ExternalLink className="w-4 h-4" aria-hidden="true" />
+            Open book page
+          </Link>
+        )}
       </div>
     </div>
   );

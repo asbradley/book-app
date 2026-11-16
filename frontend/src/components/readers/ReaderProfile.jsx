@@ -198,7 +198,7 @@ function ReaderBooks({ books, shelf, onShelfChange }) {
             <li key={book.book_id} className="flex gap-4 p-3 rounded-xl border border-gray-200">
               <BookCover src={book.cover_image} title={book.title} className="w-16 h-24" />
               <div className="min-w-0">
-                <h3 className="font-medium">{book.title}</h3>
+                <h3 className="font-medium"><Link to={`/books/${encodeURIComponent(book.book_id)}`} className="hover:underline">{book.title}</Link></h3>
                 <p className="text-gray-500 text-sm">{book.author}</p>
                 <p className="text-xs text-gray-500 mt-1">{shelfLabel(book.status)}</p>
                 {book.rating && (

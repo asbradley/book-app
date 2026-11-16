@@ -7,6 +7,7 @@ import CreateAccount from "./components/userAuthentication/CreateAccount";
 import { useState } from "react";
 import EditProfile from "./components/userPage/EditProfile";
 import ReaderProfile from "./components/readers/ReaderProfile";
+import BookPage from "./components/bookPage/BookPage";
 
 // Returns the logged-in user saved by LoginPage/CreateAccount, or null.
 // Clears the saved login if it's missing pieces or can't be parsed.
@@ -56,6 +57,7 @@ export default function App() {
             <CreateAccount setisLoggedin={setisLoggedin} setUser={setUser} />
           }
         />
+        <Route path="/books/:bookId" element={<BookPage isLoggedin={isLoggedin} user={user} />} />
         <Route path="/readers/:username" element={<ReaderProfile isLoggedin={isLoggedin} user={user} />} />
         <Route path="/profile" element={<ProfilePage user={user} onLogout={handleLogout} />} />
 
