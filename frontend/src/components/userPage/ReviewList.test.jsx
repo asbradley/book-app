@@ -1,3 +1,4 @@
+import { MemoryRouter } from "react-router-dom";
 import { render, screen } from "@testing-library/react";
 import axios from "axios";
 import ReviewList from "./ReviewList";
@@ -23,7 +24,7 @@ test("lists only reviewed books, most recently updated first", async () => {
       book({ book_id: "c", title: "Newer", review: "Great", updated_at: "2026-03-01T00:00:00Z" }),
     ],
   });
-  render(<ReviewList userId={1} />);
+  render(<ReviewList userId={1} />, { wrapper: MemoryRouter });
 
   const titles = (await screen.findAllByRole("heading")).map((h) => h.textContent);
   expect(titles).toEqual(["Newer", "Older"]);
@@ -32,7 +33,7 @@ test("lists only reviewed books, most recently updated first", async () => {
 
 test("shows an empty state when nothing has been reviewed", async () => {
   axios.get.mockResolvedValue({ data: [book({})] });
-  render(<ReviewList userId={1} />);
+  render(<ReviewList userId={1} />, { wrapper: MemoryRouter });
 
   expect(await screen.findByText(/no reviews yet/i)).toBeInTheDocument();
 });

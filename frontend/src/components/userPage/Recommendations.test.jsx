@@ -1,3 +1,4 @@
+import { MemoryRouter } from "react-router-dom";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
@@ -19,7 +20,7 @@ beforeEach(() => jest.clearAllMocks());
 
 test("shows each recommendation with the AI's reason", async () => {
   axios.get.mockResolvedValue({ data: { recommendations: [wind] } });
-  render(<Recommendations userId={1} />);
+  render(<Recommendations userId={1} />, { wrapper: MemoryRouter });
 
   expect(await screen.findByText("The Name of the Wind")).toBeInTheDocument();
   expect(screen.getByText("Because you loved Dune's world-building")).toBeInTheDocument();
@@ -27,7 +28,7 @@ test("shows each recommendation with the AI's reason", async () => {
 
 test("clicking a recommendation opens its details", async () => {
   axios.get.mockResolvedValue({ data: { recommendations: [wind] } });
-  render(<Recommendations userId={1} />);
+  render(<Recommendations userId={1} />, { wrapper: MemoryRouter });
 
   await userEvent.click(await screen.findByText("The Name of the Wind"));
 
@@ -36,7 +37,7 @@ test("clicking a recommendation opens its details", async () => {
 
 test("'New picks' asks the server for a fresh set", async () => {
   axios.get.mockResolvedValue({ data: { recommendations: [wind] } });
-  render(<Recommendations userId={1} />);
+  render(<Recommendations userId={1} />, { wrapper: MemoryRouter });
   await screen.findByText("The Name of the Wind");
 
   await userEvent.click(screen.getByRole("button", { name: /new picks/i }));
@@ -50,7 +51,7 @@ test("'New picks' asks the server for a fresh set", async () => {
 
 test("shows a helpful message when there's nothing to recommend yet", async () => {
   axios.get.mockResolvedValue({ data: { recommendations: [] } });
-  render(<Recommendations userId={1} />);
+  render(<Recommendations userId={1} />, { wrapper: MemoryRouter });
 
   expect(await screen.findByText(/add a few books/i)).toBeInTheDocument();
 });
@@ -60,7 +61,7 @@ test("shows the server's error message", async () => {
     response: { data: { message: "Recommendations are temporarily unavailable." } },
   });
   jest.spyOn(console, "error").mockImplementation(() => {});
-  render(<Recommendations userId={1} />);
+  render(<Recommendations userId={1} />, { wrapper: MemoryRouter });
 
   expect(await screen.findByText("Recommendations are temporarily unavailable.")).toBeInTheDocument();
   console.error.mockRestore();

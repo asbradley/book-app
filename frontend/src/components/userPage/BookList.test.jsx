@@ -1,3 +1,4 @@
+import { MemoryRouter } from "react-router-dom";
 import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
@@ -24,7 +25,7 @@ beforeEach(() => {
 const rowFor = async (title) => (await screen.findByText(title)).closest("li");
 
 test("shows the user's books with shelf counts", async () => {
-  render(<BookList userId={1} />);
+  render(<BookList userId={1} />, { wrapper: MemoryRouter });
 
   expect(await screen.findByText("Dune")).toBeInTheDocument();
   expect(screen.getByText("Hyperion")).toBeInTheDocument();
@@ -33,7 +34,7 @@ test("shows the user's books with shelf counts", async () => {
 });
 
 test("filters by shelf", async () => {
-  render(<BookList userId={1} />);
+  render(<BookList userId={1} />, { wrapper: MemoryRouter });
   await screen.findByText("Dune");
 
   await userEvent.click(screen.getByRole("button", { name: "Want to Read (1)" }));
@@ -44,7 +45,7 @@ test("filters by shelf", async () => {
 
 test("rating a book saves it and shows the updated row", async () => {
   axios.patch.mockResolvedValue({ data: { ...dune, rating: 5 } });
-  render(<BookList userId={1} />);
+  render(<BookList userId={1} />, { wrapper: MemoryRouter });
   const row = await rowFor("Dune");
 
   await userEvent.click(within(row).getByLabelText("Rate 5 out of 5"));
@@ -61,7 +62,7 @@ test("rating a book saves it and shows the updated row", async () => {
 
 test("writing a review saves it and displays it", async () => {
   axios.patch.mockResolvedValue({ data: { ...dune, review: "A classic" } });
-  render(<BookList userId={1} />);
+  render(<BookList userId={1} />, { wrapper: MemoryRouter });
   const row = await rowFor("Dune");
 
   await userEvent.click(within(row).getByRole("button", { name: /write review/i }));
@@ -74,7 +75,7 @@ test("writing a review saves it and displays it", async () => {
 
 test("removing a book takes it off the list", async () => {
   axios.delete.mockResolvedValue({});
-  render(<BookList userId={1} />);
+  render(<BookList userId={1} />, { wrapper: MemoryRouter });
   const row = await rowFor("Dune");
 
   await userEvent.click(within(row).getByLabelText("Remove Dune"));
@@ -87,7 +88,7 @@ test("removing a book takes it off the list", async () => {
 test("shows the server's message when an update fails", async () => {
   axios.patch.mockRejectedValue({ response: { data: { message: "Invalid status" } } });
   jest.spyOn(console, "error").mockImplementation(() => {});
-  render(<BookList userId={1} />);
+  render(<BookList userId={1} />, { wrapper: MemoryRouter });
   const row = await rowFor("Dune");
 
   await userEvent.selectOptions(within(row).getByRole("combobox"), "reading");
@@ -98,7 +99,7 @@ test("shows the server's message when an update fails", async () => {
 
 test("shows an empty state when there are no books", async () => {
   axios.get.mockResolvedValue({ data: [] });
-  render(<BookList userId={1} />);
+  render(<BookList userId={1} />, { wrapper: MemoryRouter });
 
   expect(await screen.findByText(/your shelves are empty/i)).toBeInTheDocument();
 });

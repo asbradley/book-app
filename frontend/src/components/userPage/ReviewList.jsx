@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import StarRating from "./StarRating";
@@ -52,7 +53,7 @@ export default function ReviewList({ userId }) {
             <div className="w-16 h-24 bg-gray-100 rounded-md flex-shrink-0" />
           )}
           <div className="min-w-0">
-            <h3 className="font-medium">{book.title}</h3>
+            <h3 className="font-medium"><Link to={`/books/${encodeURIComponent(book.book_id)}`} className="hover:underline">{book.title}</Link></h3>
             <p className="text-gray-500 text-sm">{book.author}</p>
             {book.rating && (
               <div className="mt-1">

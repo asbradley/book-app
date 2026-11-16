@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Trash2, PenLine } from "lucide-react";
@@ -144,7 +145,7 @@ function BookRow({ book, onUpdate, onRemove }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h3 className="font-medium truncate">{book.title}</h3>
+            <h3 className="font-medium truncate"><Link to={`/books/${encodeURIComponent(book.book_id)}`} className="hover:underline">{book.title}</Link></h3>
             <p className="text-gray-500 text-sm">{book.author}</p>
           </div>
           <button

@@ -69,7 +69,7 @@ export default function Feed() {
                   {item.username}
                 </Link>{" "}
                 <span className="text-gray-600">{ACTIONS[item.status]}</span>{" "}
-                <span className="font-medium">{item.title}</span>
+                <Link to={`/books/${encodeURIComponent(item.book_id)}`} className="font-medium hover:underline">{item.title}</Link>
                 {item.author && <span className="text-gray-500"> by {item.author}</span>}
               </p>
               {item.rating && (
