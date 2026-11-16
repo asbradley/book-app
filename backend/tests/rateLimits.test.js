@@ -7,6 +7,13 @@ jest.mock("axios");
 const axios = require("axios");
 const { app, db, request, resetDb, createUser } = require("./helpers");
 
+// These tests send many requests, some with bcrypt at full cost (about 15
+// password checks in the login test), which can pass Jest's default 5s on a
+// slow CI runner. A timed-out test keeps running in the background and its
+// withLimits() cleanup then turns limits off in the middle of the next test,
+// so give them room.
+jest.setTimeout(30000);
+
 beforeAll(resetDb);
 afterAll(() => db.end());
 
